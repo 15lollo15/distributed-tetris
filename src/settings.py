@@ -23,8 +23,8 @@ SOFT_DROP_WEIGHT = 2
 SPAWN_SLEEP = 10
 
 NEXT_LEVEL_GAP = [(i + 1) * 10 for i in range(10)]
-NEXT_LEVEL_GAP.extend([100 for i in range(5)])
-NEXT_LEVEL_GAP.extend([(100 + (i+1)*10) for i in range(10)])
-NEXT_LEVEL_GAP.extend([200 for i in range(3)])
+NEXT_LEVEL_GAP.extend([100 for _ in range(5)])
+NEXT_LEVEL_GAP.extend([(100 + (i + 1) * 10) for i in range(10)])
+NEXT_LEVEL_GAP.extend([200 for _ in range(3)])
 
 rng = Random(15)

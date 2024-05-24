@@ -67,6 +67,7 @@ class Game:
                 continue
             self.peers_fields_sf[uri] = pg.Surface((settings.TETRIS_FIELD_WIDTH * settings.PREVIEW_BLOCK_SIZE,
                                                     settings.TETRIS_FIELD_HEIGHT * settings.PREVIEW_BLOCK_SIZE))
+
     def init_peers_uris(self):
         for uri in self.connected_peer_uris:
             p = Pyro4.Proxy(uri)
@@ -120,7 +121,6 @@ class Game:
         self.init_peers_fields()
         self.init_peers_fields_sf()
         self.init_is_dead()
-
 
     def manage_remote_events_loop(self):
         while self.is_running:
@@ -181,8 +181,6 @@ class Game:
                 return
         if not self.i_lose:
             self.i_win = True
-
-
 
     def draw_next_tetronimo(self):
         self.next_tetromino_sf.fill(BlockType.NONE.value)
@@ -326,9 +324,9 @@ class Game:
                 spacing = (self.tetris_field_sf.get_width() + settings.BLOCK_SIZE + self.next_tetromino_sf.get_width()
                            + settings.BLOCK_SIZE)
                 space = (settings.SCREEN_WIDTH - spacing) // 5
-                padding_x = (space - settings.PREVIEW_BLOCK_SIZE*settings.TETRIS_FIELD_WIDTH) // 2
+                padding_x = (space - settings.PREVIEW_BLOCK_SIZE * settings.TETRIS_FIELD_WIDTH) // 2
                 space_y = settings.SCREEN_HEIGHT // 2
-                padding_y = (space_y - settings.PREVIEW_BLOCK_SIZE*settings.TETRIS_FIELD_HEIGHT) // 2
+                padding_y = (space_y - settings.PREVIEW_BLOCK_SIZE * settings.TETRIS_FIELD_HEIGHT) // 2
                 self.screen.blit(sf, (col * space + spacing + padding_x, row * space_y + padding_y))
 
             pg.display.update()

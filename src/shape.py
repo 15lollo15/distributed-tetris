@@ -43,6 +43,3 @@ class Shape:
 
     def __str__(self):
         return str(self.matrix) + '\n' + str(self.paddings)
-
-
-

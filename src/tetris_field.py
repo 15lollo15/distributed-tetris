@@ -2,6 +2,7 @@ from enum import Enum
 
 import settings
 
+
 class BlockType(Enum):
     NONE = (149, 97, 226)
     L_BLOCK = (227, 52, 47)
@@ -72,5 +73,3 @@ class TetrisField:
                 BlockType.WALL_BLOCK if i != hole_index else BlockType.NONE for i in range(settings.TETRIS_FIELD_WIDTH)
             ]
         return lose
-
-
