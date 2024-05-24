@@ -169,7 +169,7 @@ class Game:
         self.check_i_win()
 
     @Pyro4.expose
-    def set_winnet(self, uri):
+    def set_winner(self, uri):
         self.winner = uri
         self.is_running = False
 
@@ -273,7 +273,7 @@ class Game:
                 continue
             elif self.i_win:
                 for peer in self.peers:
-                    peer.set_winnet(self.uri)
+                    peer.set_winner(self.uri)
                 self.is_running = False
                 break
             self.tetris_field_sf.fill(BlockType.NONE.value)

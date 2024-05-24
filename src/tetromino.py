@@ -158,36 +158,45 @@ class Tetromino:
             self.go_down()
         self.is_dead = True
 
-    def get_input(self) -> None:
-        if self.is_dead:
-            return
-        pressed = pg.key.get_pressed()
-        if pressed[pg.K_LEFT]:
+    def manage_lateral_input(self, pressed_left: bool, pressed_right: bool):
+        if pressed_left:
             if self.das == settings.DAS:
                 self.go_left()
             self.das -= 1
-        elif pressed[pg.K_RIGHT]:
+        elif pressed_right:
             if self.das == settings.DAS:
                 self.go_right()
             self.das -= 1
         else:
             self.das = settings.DAS
 
-        if pressed[pg.K_DOWN]:
+    def manage_drop(self, pressed_down: bool):
+        if pressed_down:
             self.gravity_drop = settings.SOFT_DROP_WEIGHT
         else:
             self.gravity_drop = 1
 
-        if pressed[pg.K_UP] and not self.rotated:
+    def manage_rotation(self, pressed_up: bool):
+        if pressed_up and not self.rotated:
             self.rotate()
             self.rotated = True
-        elif not pressed[pg.K_UP]:
+        elif not pressed_up:
             self.rotated = False
 
-        if pressed[pg.K_SPACE] and not self.already_pressed:
+    def manage_hard_drop(self, pressed_space: bool):
+        if pressed_space and not self.already_pressed:
             self.hard_drop()
-        elif not pressed[pg.K_SPACE]:
+        elif not pressed_space:
             self.already_pressed = False
+
+    def get_input(self) -> None:
+        if self.is_dead:
+            return
+        pressed = pg.key.get_pressed()
+        self.manage_lateral_input(pressed[pg.K_LEFT], pressed[pg.K_RIGHT])
+        self.manage_drop(pressed[pg.K_DOWN])
+        self.manage_rotation(pressed[pg.K_UP])
+        self.manage_hard_drop(pressed[pg.K_SPACE])
 
     def update(self) -> None:
         self.get_input()
