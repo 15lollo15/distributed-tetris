@@ -61,13 +61,13 @@ class Peer:
             return False
         self.lobby: Pyro4.Daemon = Pyro4.Daemon()
         self.lobby_instance = Lobby(5, name=self.lobby_name)  # TODO: Add in configuration
+        self.lobby_uri = self.lobby.register(self.lobby_instance)
         try:
-            self.lobby_uri = self.lobby.register(self.lobby_instance)
+            self.name_server.register(self.lobby_name, self.lobby_uri, metadata=['lobby'], safe=True)
         except Pyro4.errors.NamingError:
             self.reset()
             print('Naming error')
             return False
-        self.name_server.register(self.lobby_name, self.lobby_uri, metadata=['lobby'], safe=True)
         self.lobby_thread = threading.Thread(target=self.lobby.requestLoop)
         self.lobby_thread.start()
         self.connect_to_lobby(self.lobby_name)

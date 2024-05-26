@@ -33,7 +33,7 @@ class MenuState(GameState):
                 if event.ui_element == self.multi_player_button:
                     return 'BROWSE_LOBBY'
                 elif event.ui_element == self.single_player_button:
-                    return 'PLAY'
+                    return 'SINGLE_PLAYER'
 
             self.ui_manager.process_events(event)
 

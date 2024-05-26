@@ -5,7 +5,7 @@ from state.browse_lobby_state import BrowseLobbyState
 from state.game_state import GameState
 from state.lobby_state import LobbyState
 from state.menu_state import MenuState
-from state.play_state import PlayState
+from state.single_player_state import SinglePlayerState
 
 
 class StateManager:
@@ -14,7 +14,7 @@ class StateManager:
             'MENU': MenuState(),
             'BROWSE_LOBBY': BrowseLobbyState(peer),
             'LOBBY': LobbyState(peer),
-            'PLAY': PlayState(peer)
+            'SINGLE_PLAYER': SinglePlayerState()
         }
         self.current_state: GameState = self.states["LOBBY"]
 

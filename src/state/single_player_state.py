@@ -11,11 +11,9 @@ from tetris_field import TetrisField, BlockType
 from tetromino import preload_tetrominos, Tetromino
 
 
-class PlayState(GameState):
-    def __init__(self, peer: Peer | None):
+class SinglePlayerState(GameState):
+    def __init__(self):
         preload_tetrominos()
-        self.multiplayer = peer is not None
-        self.peer = peer
         self.tetris_field_sf = pg.surface.Surface((settings.TETRIS_FIELD_WIDTH * settings.BLOCK_SIZE,
                                                    settings.TETRIS_FIELD_HEIGHT * settings.BLOCK_SIZE))
         pg.draw.rect(self.tetris_field_sf, 'black', (0, 0, settings.TETRIS_FIELD_WIDTH * settings.BLOCK_SIZE,
