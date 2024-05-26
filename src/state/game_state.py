@@ -4,8 +4,6 @@ from typing import List
 from pygame import Surface
 from pygame.event import Event
 
-from net.peer import Peer
-
 
 class GameState:
 

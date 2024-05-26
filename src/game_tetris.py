@@ -2,8 +2,8 @@ import threading
 from random import Random
 from typing import List, Tuple
 
-import pygame as pg
 import Pyro4
+import pygame as pg
 import select
 
 import settings
