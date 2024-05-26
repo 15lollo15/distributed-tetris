@@ -1,0 +1,14 @@
+{
+  "#game_title":
+  {
+    "colours":
+    {
+      "normal_text": "#ffffff"
+    },
+    "font":
+    {
+      "name": "Consolas",
+      "size": 50
+    }
+  }
+}
