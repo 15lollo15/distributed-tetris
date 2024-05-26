@@ -18,6 +18,7 @@ class Game:
         self.is_running = True
         while self.is_running:
             delta_time = self.clock.tick(settings.FRAME_RATE)
+            self.screen.fill('black')
             events = pg.event.get()
 
             self.is_running = self.state_manager.handle_events(events)

@@ -2,10 +2,9 @@ from typing import List
 
 import pygame as pg
 import pygame_gui
+import settings
 from pygame import Surface
 from pygame.event import Event
-
-import settings
 from state.game_state import GameState
 
 

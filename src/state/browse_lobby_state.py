@@ -2,10 +2,9 @@ from typing import List, Dict
 
 import pygame as pg
 import pygame_gui
-from pygame import Surface, Event
-
 import settings
 from net.peer import Peer
+from pygame import Surface, Event
 from state.game_state import GameState
 
 
@@ -16,15 +15,27 @@ class BrowseLobbyState(GameState):
         self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, 'data/theme.json')
         self.lobby_selection_list: pygame_gui.elements.UISelectionList = None
         self.new_lobby_button: pygame_gui.elements.UIButton = None
+        self.matchmaking_label: pygame_gui.elements.UILabel = None
         self.time_elapsed: int = 0
         self.setup_ui()
 
     def setup_ui(self):
-        self.lobby_selection_list = pygame_gui.elements.UISelectionList(pg.Rect((0, 0), (300, 600)), [],
+        matchmaking_label_rect = pg.Rect(0, 0, 100, 100)
+        self.matchmaking_label = pygame_gui.elements.UILabel(matchmaking_label_rect, 'Match making',
+                                                             manager=self.ui_manager,
+                                                             anchors={'centerx': 'centerx'}
+                                                             )
+        lobby_selection_list_rect = pg.Rect(0, 0, 1500, 600)
+        self.lobby_selection_list = pygame_gui.elements.UISelectionList(lobby_selection_list_rect, [],
                                                                         manager=self.ui_manager,
-                                                                        allow_double_clicks=True)
-        self.new_lobby_button = pygame_gui.elements.UIButton(pg.Rect((0, 600), (100, 200)), 'New lobby',
-                                                             self.ui_manager)
+                                                                        anchors={'centerx': 'centerx',
+                                                                                 'centery': 'centery'}
+                                                                        )
+        new_lobby_button_rect = pg.Rect(0, 0, 200, 50)
+        new_lobby_button_rect.right = 1600
+        new_lobby_button_rect.top = 25
+        self.new_lobby_button = pygame_gui.elements.UIButton(new_lobby_button_rect, 'New lobby',
+                                                             manager=self.ui_manager)
 
     def handle_events(self, events: List[Event]) -> str | None:
         for event in events:

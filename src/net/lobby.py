@@ -17,11 +17,12 @@ def check_active(method):
 
 
 class Lobby:
-    def __init__(self, max_players: int):
+    def __init__(self, max_players: int, name='lobby'):
         self.players = {}
         self.lock = Lock()
         self.active = True
         self.max_players = max_players
+        self.name = name
 
     def _is_full(self):
         return len(self.players.keys()) >= self.max_players
@@ -49,6 +50,24 @@ class Lobby:
     def list_players(self) -> Dict[str, str]:
         with self.lock:
             return self.players
+
+    @check_active
+    @Pyro4.expose
+    def get_name(self) -> str:
+        with self.lock:
+            return self.name
+
+    @check_active
+    @Pyro4.expose
+    def get_players_number(self) -> int:
+        with self.lock:
+            return len(self.players)
+
+    @check_active
+    @Pyro4.expose
+    def get_max_players_number(self) -> int:
+        with self.lock:
+            return self.max_players
 
     def deactivate(self):
         self.active = False
