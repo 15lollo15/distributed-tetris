@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "distributed-tetris"
+version = "0.0.0"
+description = ""
+authors = ["Lorenzo Racca <lorenzo_racca@hotmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pygame-ce = "^2.4.1"
+pyro4 = "^4.82"
+pygame-gui = "^0.6.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
