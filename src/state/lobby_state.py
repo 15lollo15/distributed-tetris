@@ -51,6 +51,8 @@ class LobbyState(GameState):
 
         for event in events:
             if event.type == pg.QUIT:
+                if self.peer.is_host():
+                    self.peer.shutdown_lobby()
                 return 'QUIT'
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:

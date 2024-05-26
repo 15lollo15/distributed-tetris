@@ -8,6 +8,7 @@ from pygame import Surface, Event
 from state.game_state import GameState
 
 
+# TODO: Info messages
 class BrowseLobbyState(GameState):
 
     def __init__(self, peer: Peer):
