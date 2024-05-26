@@ -3,9 +3,10 @@ from typing import List, Dict
 import Pyro4.errors
 import pygame as pg
 import pygame_gui
+from pygame import Surface, Event
+
 import settings
 from net.peer import Peer
-from pygame import Surface, Event
 from state.game_state import GameState
 
 

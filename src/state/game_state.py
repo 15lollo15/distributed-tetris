@@ -18,3 +18,6 @@ class GameState:
     @abstractmethod
     def render(self, screen: Surface):
         pass
+
+    def on_change(self):
+        pass

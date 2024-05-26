@@ -6,7 +6,7 @@ from game import Game
 def main(argv: list[str]):
     if 'host' in argv:
         game = Game('host')
-        game.state_manager.change_state('BROWSE_LOBBY')
+        game.state_manager.change_state('MENU')
         game.run()
     else:
         game = Game('client-3')

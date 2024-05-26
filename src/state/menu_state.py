@@ -2,9 +2,10 @@ from typing import List
 
 import pygame as pg
 import pygame_gui
-import settings
 from pygame import Surface
 from pygame.event import Event
+
+import settings
 from state.game_state import GameState
 
 
@@ -31,6 +32,8 @@ class MenuState(GameState):
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.multi_player_button:
                     return 'BROWSE_LOBBY'
+                elif event.ui_element == self.single_player_button:
+                    return 'PLAY'
 
             self.ui_manager.process_events(event)
 

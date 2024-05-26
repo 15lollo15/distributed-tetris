@@ -3,6 +3,7 @@ import threading
 
 import Pyro4
 import Pyro4.errors
+
 from net.lobby import Lobby
 
 logger = logging.getLogger(__name__)
