@@ -45,6 +45,7 @@ class LobbyState(GameState):
 
     def handle_events(self, events: List[Event]) -> str | None:
         if self.crashed:
+            self.peer.reset()
             self.crashed = False
             return 'BROWSE_LOBBY'
 
@@ -63,6 +64,8 @@ class LobbyState(GameState):
             self.ui_manager.process_events(event)
 
     def update(self, delta_time: int):
+        if self.crashed:
+            return
         try:
             self.ui_manager.update(delta_time)
             self.time_elapsed += delta_time
