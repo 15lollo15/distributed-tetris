@@ -1,5 +1,7 @@
 from random import Random
+from typing import Dict, List
 
+import Pyro4
 import pygame as pg
 from pygame import Surface
 
@@ -19,7 +21,7 @@ class MultiPlayerState(SinglePlayerState):
 
         self.peers_fields = {}
         self.peers_fields_sf = {}
-        self.is_dead = {}
+        self.is_dead: Dict[str, bool] = {}
 
         self.init_is_dead()
         self.init_peers_fields()
@@ -81,6 +83,9 @@ class MultiPlayerState(SinglePlayerState):
         if not self.i_lose:
             self.i_win = True
 
+    def get_alive(self) -> List[Pyro4.Proxy]:
+        return [self.peer.peers[player_name] for player_name, is_dead in self.is_dead.items() if not is_dead]
+
     def update(self, delta_time: int):
         if not self.is_running:
             return
@@ -111,8 +116,7 @@ class MultiPlayerState(SinglePlayerState):
             count = self.tetris_field.remove_full_rows()
 
             if count > 0:
-                print(self.peer.peers.values())
-                enemy_peer = settings.rng.choice(list(self.peer.peers.values()))
+                enemy_peer = settings.rng.choice(self.get_alive())
                 enemy_peer.add_rows(count)
             exceed = self.to_next_level - count
             self.to_next_level -= count
