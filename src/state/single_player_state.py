@@ -12,14 +12,15 @@ from tetromino import preload_tetrominos, Tetromino
 
 
 class SinglePlayerState(GameState):
-    def __init__(self):
+    def __init__(self, peer: Peer | None = None):
+        self.peer = peer
         preload_tetrominos()
         self.tetris_field_sf = pg.surface.Surface((settings.TETRIS_FIELD_WIDTH * settings.BLOCK_SIZE,
                                                    settings.TETRIS_FIELD_HEIGHT * settings.BLOCK_SIZE))
         pg.draw.rect(self.tetris_field_sf, 'black', (0, 0, settings.TETRIS_FIELD_WIDTH * settings.BLOCK_SIZE,
                                                      settings.TETRIS_FIELD_HEIGHT * settings.BLOCK_SIZE))
 
-        self.seed = None
+        self.seed = None if not peer else peer.seed
         self.rng = Random(self.seed)
 
         self.tetris_field = TetrisField()
@@ -36,6 +37,7 @@ class SinglePlayerState(GameState):
         self.i_win = False
 
     def on_change(self):
+        self.seed = None if not self.peer else self.peer.seed
         self.rng = Random(self.seed)
         self.tetris_field = TetrisField()
         self.tetromino = self.random_tetromino()

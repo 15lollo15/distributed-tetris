@@ -1,5 +1,7 @@
 import logging
 import threading
+from random import Random
+from typing import Dict
 
 import Pyro4
 import Pyro4.errors
@@ -24,6 +26,68 @@ class Peer:
         self.lobby_proxy: Pyro4.Proxy | None = None
 
         self.lobby_name = f'{self.player_name}-lobby'
+        self.peers: Dict[str, Pyro4.Proxy] = {}
+        self.seed = None
+
+        self.request_loop_thread = threading.Thread(target=self.daemon.requestLoop)
+        self.request_loop_thread.start()
+
+        self.multiplayer_instance = None
+        self.is_ready = False
+
+    @Pyro4.expose
+    @Pyro4.oneway
+    def set_is_ready(self):
+        self.is_ready = True
+
+    @Pyro4.expose
+    @Pyro4.oneway
+    def set_seed(self, seed):
+        self.seed = seed
+
+    def share_peers(self):
+        self.seed = Random().random()
+        self.setup_other_peers()
+        for player_name, peer in self.peers.items():
+            print(f'{player_name} setup...')
+            peer.setup_other_peers()
+            print(f'{player_name} setup SUCCESS')
+            peer.set_seed(self.seed)
+            peer.set_is_ready()
+
+    @Pyro4.expose
+    def setup_other_peers(self):
+        self.peers = {}
+        players_dict = self.lobby_proxy.list_players()
+        for player_name, uri in players_dict.items():
+            if player_name == self.player_name:
+                continue
+            self.peers[player_name] = Pyro4.Proxy(uri)
+
+    @Pyro4.expose
+    @Pyro4.oneway
+    def set_tetris_field(self, player_name, field):
+        self.multiplayer_instance.peers_fields[player_name] = field
+
+    @Pyro4.expose
+    @Pyro4.oneway
+    def add_rows(self, num_rows: int):
+        self.multiplayer_instance.tetris_field.add_rows(num_rows)
+        for uri, peer in self.peers.items():
+            peer.set_tetris_field(self.player_name, self.multiplayer_instance.tetris_field.field)
+
+    @Pyro4.expose
+    @Pyro4.oneway
+    def set_is_dead(self, player_name):
+        self.multiplayer_instance.is_dead[player_name] = True
+        # TODO: Check if i win
+        # self.multiplayer_instance.check_i_win()
+
+    # TODO: Implement this
+    # @Pyro4.expose
+    # def set_winner(self, uri):
+    #     self.winner = uri
+    #     self.is_running = False
 
     def reset(self):
         self.lobby: Pyro4.Daemon | None = None
@@ -31,6 +95,13 @@ class Peer:
         self.lobby_uri = None
         self.lobby_thread: threading.Thread | None = None
         self.lobby_proxy: Pyro4.Proxy | None = None
+        self.peers: Dict[str, Pyro4.Proxy] = {}
+        self.seed = None
+
+        self.peers: Dict[str, Pyro4.Proxy] = {}
+        self.seed = None
+        self.multiplayer_instance = None
+        self.is_ready = False
 
     def is_host(self):
         return self.lobby_instance is not None

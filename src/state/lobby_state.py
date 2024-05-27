@@ -51,6 +51,9 @@ class LobbyState(GameState):
         self.play_button = pygame_gui.elements.UIButton(play_button_rect, 'Play', manager=self.ui_manager)
 
     def handle_events(self, events: List[Event]) -> str | None:
+        if self.peer.is_ready:
+            return 'MULTI_PLAYER'
+
         if self.crashed:
             self.peer.reset()
             self.crashed = False
@@ -69,11 +72,14 @@ class LobbyState(GameState):
                     else:
                         self.peer.disconnect()
                     return 'BROWSE_LOBBY'
+                if event.ui_element == self.play_button:
+                    self.peer.share_peers()
+                    return 'MULTI_PLAYER'
 
             self.ui_manager.process_events(event)
 
     def update(self, delta_time: int):
-        if self.crashed:
+        if self.crashed or self.peer.is_ready:
             return
         try:
             self.ui_manager.update(delta_time)
