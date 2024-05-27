@@ -26,6 +26,8 @@ class MultiPlayerState(SinglePlayerState):
         self.init_peers_fields_sf()
 
         self.peer.multiplayer_instance = self
+        self.is_read_to_play = True
+        self.all_ready = False
 
     def on_change(self):
         super().on_change()
@@ -41,6 +43,8 @@ class MultiPlayerState(SinglePlayerState):
         self.init_peers_fields_sf()
 
         self.peer.multiplayer_instance = self
+        self.all_ready = False
+        self.is_read_to_play = True
 
     def init_is_dead(self):
         for player_name, _ in self.peer.peers.items():
@@ -68,6 +72,10 @@ class MultiPlayerState(SinglePlayerState):
             self.draw_field(field, field_sf, is_preview=True)
 
     def update(self, delta_time: int):
+        if not self.all_ready:
+            self.all_ready = self.peer.all_ready()
+            return
+
         if self.i_lose:
             return
 
@@ -82,7 +90,7 @@ class MultiPlayerState(SinglePlayerState):
             count = self.tetris_field.remove_full_rows()
 
             if count > 0:
-                enemy_peer = settings.rng.choice(self.peer.peers.values())
+                enemy_peer = settings.rng.choice(list(self.peer.peers.values()))
                 enemy_peer.add_rows(count)
             exceed = self.to_next_level - count
             self.to_next_level -= count

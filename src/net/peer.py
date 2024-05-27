@@ -34,16 +34,30 @@ class Peer:
 
         self.multiplayer_instance = None
         self.is_ready = False
+        self.lock = threading.Lock()
+
+    def all_ready(self):
+        for _, proxy in self.peers.items():
+            if not proxy.check_if_ready_to_play():
+                return False
+        return True
+
+    @Pyro4.expose
+    def check_if_ready_to_play(self):
+        with self.lock:
+            return self.multiplayer_instance.is_read_to_play
 
     @Pyro4.expose
     @Pyro4.oneway
     def set_is_ready(self):
-        self.is_ready = True
+        with self.lock:
+            self.is_ready = True
 
     @Pyro4.expose
     @Pyro4.oneway
     def set_seed(self, seed):
-        self.seed = seed
+        with self.lock:
+            self.seed = seed
 
     def share_peers(self):
         self.seed = Random().random()
@@ -57,29 +71,33 @@ class Peer:
 
     @Pyro4.expose
     def setup_other_peers(self):
-        self.peers = {}
-        players_dict = self.lobby_proxy.list_players()
-        for player_name, uri in players_dict.items():
-            if player_name == self.player_name:
-                continue
-            self.peers[player_name] = Pyro4.Proxy(uri)
+        with self.lock:
+            self.peers = {}
+            players_dict = self.lobby_proxy.list_players()
+            for player_name, uri in players_dict.items():
+                if player_name == self.player_name:
+                    continue
+                self.peers[player_name] = Pyro4.Proxy(uri)
 
     @Pyro4.expose
     @Pyro4.oneway
     def set_tetris_field(self, player_name, field):
-        self.multiplayer_instance.peers_fields[player_name] = field
+        with self.lock:
+            self.multiplayer_instance.peers_fields[player_name] = field
 
     @Pyro4.expose
     @Pyro4.oneway
     def add_rows(self, num_rows: int):
-        self.multiplayer_instance.tetris_field.add_rows(num_rows)
-        for uri, peer in self.peers.items():
-            peer.set_tetris_field(self.player_name, self.multiplayer_instance.tetris_field.field)
+        with self.lock:
+            self.multiplayer_instance.tetris_field.add_rows(num_rows)
+            for uri, peer in self.peers.items():
+                peer.set_tetris_field(self.player_name, self.multiplayer_instance.tetris_field.field)
 
     @Pyro4.expose
     @Pyro4.oneway
     def set_is_dead(self, player_name):
-        self.multiplayer_instance.is_dead[player_name] = True
+        with self.lock:
+            self.multiplayer_instance.is_dead[player_name] = True
         # TODO: Check if i win
         # self.multiplayer_instance.check_i_win()
 

@@ -13,6 +13,7 @@ from tetromino import preload_tetrominos, Tetromino
 
 class SinglePlayerState(GameState):
     def __init__(self, peer: Peer | None = None):
+        self.is_read_to_play = False
         self.peer = peer
         preload_tetrominos()
         self.tetris_field_sf = pg.surface.Surface((settings.TETRIS_FIELD_WIDTH * settings.BLOCK_SIZE,
@@ -35,8 +36,10 @@ class SinglePlayerState(GameState):
         self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
         self.i_lose = False
         self.i_win = False
+        self.is_read_to_play = True
 
     def on_change(self):
+        self.is_read_to_play = False
         self.seed = None if not self.peer else self.peer.seed
         self.rng = Random(self.seed)
         self.tetris_field = TetrisField()
@@ -48,6 +51,7 @@ class SinglePlayerState(GameState):
         self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
         self.i_lose = False
         self.i_win = False
+        self.is_read_to_play = True
 
     def draw_next_tetronimo(self):
         self.next_tetromino_sf.fill(BlockType.NONE.value)
