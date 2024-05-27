@@ -55,14 +55,15 @@ class MultiPlayerState(SinglePlayerState):
             if player_name == self.peer.player_name:
                 continue
             self.peers_fields_sf[player_name] = pg.Surface((settings.TETRIS_FIELD_WIDTH * settings.PREVIEW_BLOCK_SIZE,
-                                                    settings.TETRIS_FIELD_HEIGHT * settings.PREVIEW_BLOCK_SIZE))
+                                                            settings.TETRIS_FIELD_HEIGHT * settings.PREVIEW_BLOCK_SIZE))
 
     def init_peers_fields_sf(self):
         for player_name, _ in self.peer.peers.items():
             if player_name == self.peer.player_name:
                 continue
-            self.peers_fields[player_name] = [[BlockType.NONE.value for __ in range(settings.TETRIS_FIELD_WIDTH)] for _ in
-                                      range(settings.TETRIS_FIELD_HEIGHT)]
+            self.peers_fields[player_name] = [[BlockType.NONE.value for __ in range(settings.TETRIS_FIELD_WIDTH)] for _
+                                              in
+                                              range(settings.TETRIS_FIELD_HEIGHT)]
 
     def draw_peers_tetris_fields(self):
         for player_name, field in list(self.peers_fields.items()):
@@ -71,25 +72,46 @@ class MultiPlayerState(SinglePlayerState):
             field_sf = self.peers_fields_sf[player_name]
             self.draw_field(field, field_sf, is_preview=True)
 
+    def check_i_win(self):
+        for player_name, is_dead in list(self.is_dead.items()):
+            if player_name == self.peer.player_name:
+                continue
+            if not is_dead:
+                return
+        if not self.i_lose:
+            self.i_win = True
+
     def update(self, delta_time: int):
+        if not self.is_running:
+            return
+
         if not self.all_ready:
             self.all_ready = self.peer.all_ready()
             return
 
-        if self.i_lose:
+        if self.i_win:
+            print('you win')
+            for peer in self.peer.peers.values():
+                peer.set_winner(self.peer.player_name)
+            self.is_running = False
             return
 
         self.tetris_field_sf.fill(BlockType.NONE.value)
+        self.check_i_win()
         self.tetromino.update()
         if self.tetromino.is_dead:
             if self.tetromino.pos.y < 0:
                 print('you lose')
                 self.i_lose = True
+                for peer in self.peer.peers.values():
+                    peer.set_is_dead(self.peer.player_name)
+                self.is_running = False
                 return
             self.add_tetronimo_to_field()
             count = self.tetris_field.remove_full_rows()
 
             if count > 0:
+                print(self.peer.peers.values())
                 enemy_peer = settings.rng.choice(list(self.peer.peers.values()))
                 enemy_peer.add_rows(count)
             exceed = self.to_next_level - count
@@ -124,6 +146,3 @@ class MultiPlayerState(SinglePlayerState):
             space_y = settings.SCREEN_HEIGHT // 2
             padding_y = (space_y - settings.PREVIEW_BLOCK_SIZE * settings.TETRIS_FIELD_HEIGHT) // 2
             screen.blit(sf, (col * space + spacing + padding_x, row * space_y + padding_y))
-
-
-

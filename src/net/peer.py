@@ -104,14 +104,12 @@ class Peer:
     def set_is_dead(self, player_name):
         with self.lock:
             self.multiplayer_instance.is_dead[player_name] = True
-        # TODO: Check if i win
-        # self.multiplayer_instance.check_i_win()
+            self.multiplayer_instance.check_i_win()
 
-    # TODO: Implement this
-    # @Pyro4.expose
-    # def set_winner(self, uri):
-    #     self.winner = uri
-    #     self.is_running = False
+    @Pyro4.expose
+    def set_winner(self, player_name):
+        self.multiplayer_instance.winner = player_name
+        self.multiplayer_instance.is_running = False
 
     def reset(self):
         self.lobby: Pyro4.Daemon | None = None

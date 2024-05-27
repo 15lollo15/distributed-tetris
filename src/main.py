@@ -2,8 +2,11 @@ import sys
 
 from game import Game
 
+
 # TODO: Close app
 # TODO: Reset after play
+# TODO: Quit button on menu
+# TODO: Hit only alive
 
 def main(argv: list[str]):
     if 'host' in argv:

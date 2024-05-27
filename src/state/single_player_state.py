@@ -38,8 +38,11 @@ class SinglePlayerState(GameState):
         self.i_win = False
         self.is_read_to_play = True
 
+        self.is_running = True
+
     def on_change(self):
         self.is_read_to_play = False
+
         self.seed = None if not self.peer else self.peer.seed
         self.rng = Random(self.seed)
         self.tetris_field = TetrisField()
@@ -51,6 +54,8 @@ class SinglePlayerState(GameState):
         self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
         self.i_lose = False
         self.i_win = False
+        self.is_running = True
+
         self.is_read_to_play = True
 
     def draw_next_tetronimo(self):
@@ -93,7 +98,7 @@ class SinglePlayerState(GameState):
         return Tetromino(block_type, self.tetris_field, rotation=rotation)
 
     def handle_events(self, events: List[Event]) -> str | None:
-        if self.i_lose:
+        if not self.is_running:
             return 'MENU'
         for event in events:
             if event.type == pg.QUIT:
@@ -128,7 +133,7 @@ class SinglePlayerState(GameState):
                                  border_radius=border_radius)
 
     def update(self, delta_time: int):
-        if self.i_lose:
+        if not self.is_running:
             return
         self.tetris_field_sf.fill(BlockType.NONE.value)
         self.tetromino.update()
@@ -136,6 +141,7 @@ class SinglePlayerState(GameState):
             if self.tetromino.pos.y < 0:
                 print('you lose')
                 self.i_lose = True
+                self.is_running = False
                 return
             self.add_tetronimo_to_field()
             count = self.tetris_field.remove_full_rows()
