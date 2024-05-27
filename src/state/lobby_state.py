@@ -75,6 +75,7 @@ class LobbyState(GameState):
                     return 'BROWSE_LOBBY'
                 if event.ui_element == self.play_button:
                     self.peer.share_peers()
+                    self.peer.shutdown_lobby(reset=False)
                     return 'MULTI_PLAYER'
 
             self.ui_manager.process_events(event)

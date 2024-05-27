@@ -169,7 +169,7 @@ class Peer:
         print('New Lobby: Success')
         return True
 
-    def shutdown_lobby(self):
+    def shutdown_lobby(self, reset=True):
         if not self.is_host():
             print('not host')
             return
@@ -181,4 +181,5 @@ class Peer:
             self.lobby.close()
         if self.name_server:
             self.name_server.remove(self.lobby_name)
-        self.reset()
+        if reset:
+            self.reset()
