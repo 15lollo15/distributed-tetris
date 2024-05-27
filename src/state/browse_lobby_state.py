@@ -10,6 +10,7 @@ from state.game_state import GameState
 
 
 # TODO: Info messages
+# TODO: Refresh at start
 class BrowseLobbyState(GameState):
 
     def __init__(self, peer: Peer):

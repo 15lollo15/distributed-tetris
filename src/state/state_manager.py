@@ -11,6 +11,7 @@ from state.single_player_state import SinglePlayerState
 
 class StateManager:
     def __init__(self, peer: Peer):
+        self.peer = peer
         self.states: Dict[str, GameState] = {
             'MENU': MenuState(),
             'BROWSE_LOBBY': BrowseLobbyState(peer),
@@ -30,6 +31,7 @@ class StateManager:
         result = self.current_state.handle_events(events)
         if result:
             if result == "QUIT":
+                self.peer.kill_all()
                 return False
             self.change_state(result)
         return True

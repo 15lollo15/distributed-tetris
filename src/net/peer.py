@@ -36,6 +36,12 @@ class Peer:
         self.is_ready = False
         self.lock = threading.Lock()
 
+    def kill_all(self):
+        self.shutdown_lobby()
+        self.daemon.shutdown()
+        self.request_loop_thread.join()
+        self.reset()
+
     def all_ready(self):
         for _, proxy in self.peers.items():
             if not proxy.check_if_ready_to_play():

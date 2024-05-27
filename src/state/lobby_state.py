@@ -10,6 +10,7 @@ from net.peer import Peer
 from state.game_state import GameState
 
 
+# TODO: Refresh at start
 class LobbyState(GameState):
 
     def __init__(self, peer: Peer):

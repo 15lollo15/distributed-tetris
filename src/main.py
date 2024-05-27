@@ -2,6 +2,7 @@ import sys
 
 from game import Game
 
+# TODO: Close app
 
 def main(argv: list[str]):
     if 'host' in argv:
