@@ -134,32 +134,40 @@ class SinglePlayerState(GameState):
                                  (x, y, settings.BLOCK_SIZE, settings.BLOCK_SIZE), width,
                                  border_radius=border_radius)
 
+    def check_if_lose(self):
+        if self.tetromino.pos.y < 0:
+            print('you lose')
+            self.i_lose = True
+            self.is_running = False
+
+    def level_progress(self, count: int):
+        exceed = self.to_next_level - count
+        self.to_next_level -= count
+
+        if self.to_next_level <= 0:
+            self.level = min(self.level + 1, len(settings.NEXT_LEVEL_GAP) - 1)
+            self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
+            self.to_next_level -= exceed
+
+    def new_tetromino(self):
+        self.tetromino = self.next_tetromino
+        self.tetromino.set_level(self.level)
+        self.next_tetromino = self.random_tetromino()
+        self.draw_next_tetronimo()
+
     def update(self, delta_time: int):
         if not self.is_running:
             return
         self.tetris_field_sf.fill(BlockType.NONE.value)
         self.tetromino.update()
         if self.tetromino.is_dead:
-            if self.tetromino.pos.y < 0:
-                print('you lose')
-                self.i_lose = True
-                self.is_running = False
+            self.check_if_lose()
+            if self.i_lose:
                 return
             self.add_tetronimo_to_field()
             count = self.tetris_field.remove_full_rows()
-
-            exceed = self.to_next_level - count
-            self.to_next_level -= count
-
-            if self.to_next_level <= 0:
-                self.level = min(self.level + 1, len(settings.NEXT_LEVEL_GAP) - 1)
-                self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
-                self.to_next_level -= exceed
-
-            self.tetromino = self.next_tetromino
-            self.tetromino.set_level(self.level)
-            self.next_tetromino = self.random_tetromino()
-            self.draw_next_tetronimo()
+            self.level_progress(count)
+            self.new_tetromino()
         self.draw_field(self.tetris_field.field, self.tetris_field_sf)
         self.draw_tetronimo()
 

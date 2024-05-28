@@ -18,7 +18,7 @@ class StateManager:
             'BROWSE_LOBBY': BrowseLobbyState(peer),
             'LOBBY': LobbyState(peer),
             'SINGLE_PLAYER': SinglePlayerState(),
-            'MULTI_PLAYER': MultiPlayerState()
+            'MULTI_PLAYER': MultiPlayerState(self.peer)
         }
         self.peer.multiplayer_state = self.states['MULTI_PLAYER']
         self.current_state: GameState = self.states["LOBBY"]
