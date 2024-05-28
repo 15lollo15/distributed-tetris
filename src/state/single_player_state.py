@@ -5,23 +5,37 @@ import pygame as pg
 from pygame import Surface, Event
 
 import settings
-from net.peer import Peer
 from state.game_state import GameState
 from tetris_field import TetrisField, BlockType
 from tetromino import preload_tetrominos, Tetromino
 
 
 class SinglePlayerState(GameState):
-    def __init__(self, peer: Peer | None = None):
-        self.is_read_to_play = False
-        self.peer = peer
+    def __init__(self):
         preload_tetrominos()
         self.tetris_field_sf = pg.surface.Surface((settings.TETRIS_FIELD_WIDTH * settings.BLOCK_SIZE,
                                                    settings.TETRIS_FIELD_HEIGHT * settings.BLOCK_SIZE))
         pg.draw.rect(self.tetris_field_sf, 'black', (0, 0, settings.TETRIS_FIELD_WIDTH * settings.BLOCK_SIZE,
                                                      settings.TETRIS_FIELD_HEIGHT * settings.BLOCK_SIZE))
 
-        self.seed = None if not peer else peer.seed
+        self.next_tetromino_sf = pg.Surface((settings.BLOCK_SIZE * 5, settings.BLOCK_SIZE * 5))
+
+        self.seed: int | None = None
+        self.rng: Random | None = None
+
+        self.tetris_field: TetrisField | None = None
+        self.tetromino: Tetromino | None = None
+        self.next_tetromino: Tetromino | None = None
+        self.rotated: bool | None = None
+        self.level: int | None = None
+        self.to_next_level: int | None = None
+
+        self.is_running: bool | None = None
+
+        self.setup()
+
+    def setup(self):
+        self.seed = None
         self.rng = Random(self.seed)
 
         self.tetris_field = TetrisField()
@@ -29,34 +43,15 @@ class SinglePlayerState(GameState):
         self.next_tetromino = self.random_tetromino()
         self.rotated = False
 
-        self.next_tetromino_sf = pg.Surface((settings.BLOCK_SIZE * 5, settings.BLOCK_SIZE * 5))
         self.draw_next_tetronimo()
 
         self.level = 0
         self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
-        self.i_lose = False
-        self.i_win = False
-        self.is_read_to_play = True
 
         self.is_running = True
 
     def on_change(self):
-        self.is_read_to_play = False
-
-        self.seed = None if not self.peer else self.peer.seed
-        self.rng = Random(self.seed)
-        self.tetris_field = TetrisField()
-        self.tetromino = self.random_tetromino()
-        self.next_tetromino = self.random_tetromino()
-        self.rotated = False
-        self.draw_next_tetronimo()
-        self.level = 0
-        self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
-        self.i_lose = False
-        self.i_win = False
-        self.is_running = True
-
-        self.is_read_to_play = True
+        self.setup()
 
     def draw_next_tetronimo(self):
         self.next_tetromino_sf.fill(BlockType.NONE.value)
@@ -99,11 +94,6 @@ class SinglePlayerState(GameState):
 
     def handle_events(self, events: List[Event]) -> str | None:
         if not self.is_running:
-            if self.peer:
-                if self.peer.is_host():
-                    self.peer.shutdown_lobby()
-                else:
-                    self.peer.reset()
             return 'MENU'
         for event in events:
             if event.type == pg.QUIT:
@@ -145,7 +135,6 @@ class SinglePlayerState(GameState):
         if self.tetromino.is_dead:
             if self.tetromino.pos.y < 0:
                 print('you lose')
-                self.i_lose = True
                 self.is_running = False
                 return
             self.add_tetronimo_to_field()
