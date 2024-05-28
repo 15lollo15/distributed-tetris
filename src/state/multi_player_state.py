@@ -35,6 +35,7 @@ class MultiPlayerState(SinglePlayerState):
         super().on_change()
         self.seed = self.peer.seed
         self.rng = Random(self.seed)
+        print('seed: ' + str(self.seed))
 
         self.peers_fields = {}
         self.peers_fields_sf = {}

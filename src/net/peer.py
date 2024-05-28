@@ -6,7 +6,7 @@ from typing import Dict
 import Pyro4
 import Pyro4.errors
 
-from net.lobby import Lobby
+from net.lobby import Lobby, PlayerAlreadyIn, LobbyFull
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class Peer:
             self.seed = seed
 
     def share_peers(self):
-        self.seed = Random().random()
+        self.seed = Random().randint(0, 1000000000)
         self.setup_other_peers()
         for player_name, peer in self.peers.items():
             print(f'{player_name} setup...')
@@ -141,12 +141,19 @@ class Peer:
             return False
         try:
             self.lobby_proxy = Pyro4.Proxy(f'PYRONAME:{name}')
-            return self.lobby_proxy.join_lobby(self.player_name, self.uri)
+            self.lobby_proxy.join_lobby(self.player_name, self.uri)
         except Pyro4.errors.CommunicationError:
             self.name_server.remove(name)
             self.reset()
             print('communication error')
             return False
+        except PlayerAlreadyIn:
+            print('Player already in lobby')
+            return False
+        except LobbyFull:
+            print('Lobby is full')
+            return False
+        return True
 
     def disconnect(self):
         if not self.lobby_proxy:
@@ -159,6 +166,7 @@ class Peer:
         if self.lobby_uri:
             print('lobby uri not None')
             return False
+        self.name_server.remove(self.name_server)
         self.lobby: Pyro4.Daemon = Pyro4.Daemon()
         self.lobby_instance = Lobby(5, name=self.lobby_name)  # TODO: Add in configuration
         self.lobby_uri = self.lobby.register(self.lobby_instance)

@@ -6,7 +6,7 @@ from game import Game
 # TODO: Close app
 # TODO: Reset after play
 # TODO: Quit button on menu
-# TODO: Resynch dei seed
+# TODO: Disconnect during play (peer must die)
 
 def main(argv: list[str]):
     if 'host' in argv:

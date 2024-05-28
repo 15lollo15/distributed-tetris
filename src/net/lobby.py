@@ -16,6 +16,18 @@ def check_active(method):
     return wrapper
 
 
+class PlayerAlreadyIn(Exception):
+    pass
+
+
+class LobbyFull(Exception):
+    pass
+
+
+class PlayerNotInLobby(Exception):
+    pass
+
+
 class Lobby:
     def __init__(self, max_players: int, name='lobby'):
         self.players = {}
@@ -29,21 +41,21 @@ class Lobby:
 
     @check_active
     @Pyro4.expose
-    def join_lobby(self, player_name: str, player_uri: str) -> bool:
+    def join_lobby(self, player_name: str, player_uri: str):
         with self.lock:
-            if player_name not in self.players and not self._is_full():
-                self.players[player_name] = player_uri
-                return True
-            return False
+            if player_name in self.players:
+                raise PlayerAlreadyIn("Player is already in the lobby.")
+            if self._is_full():
+                raise LobbyFull("Lobby is full.")
+            self.players[player_name] = player_uri
 
     @check_active
     @Pyro4.expose
-    def leave_lobby(self, player_name: str) -> bool:
+    def leave_lobby(self, player_name: str):
         with self.lock:
-            if player_name in self.players:
-                del self.players[player_name]
-                return True
-            return False
+            if player_name not in self.players:
+                raise PlayerNotInLobby("Player is not in the lobby.")
+            del self.players[player_name]
 
     @check_active
     @Pyro4.expose
