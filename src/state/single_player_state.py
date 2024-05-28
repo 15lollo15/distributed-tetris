@@ -99,6 +99,11 @@ class SinglePlayerState(GameState):
 
     def handle_events(self, events: List[Event]) -> str | None:
         if not self.is_running:
+            if self.peer:
+                if self.peer.is_host():
+                    self.peer.shutdown_lobby()
+                else:
+                    self.peer.reset()
             return 'MENU'
         for event in events:
             if event.type == pg.QUIT:

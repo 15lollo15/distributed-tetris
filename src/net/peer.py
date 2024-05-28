@@ -51,7 +51,9 @@ class Peer:
     @Pyro4.expose
     def check_if_ready_to_play(self):
         with self.lock:
-            return self.multiplayer_instance.is_read_to_play
+            if self.multiplayer_instance:
+                return self.multiplayer_instance.is_read_to_play
+            return False
 
     @Pyro4.expose
     @Pyro4.oneway
@@ -89,27 +91,32 @@ class Peer:
     @Pyro4.oneway
     def set_tetris_field(self, player_name, field):
         with self.lock:
-            self.multiplayer_instance.peers_fields[player_name] = field
+            if self.multiplayer_instance:
+                self.multiplayer_instance.peers_fields[player_name] = field
 
     @Pyro4.expose
     @Pyro4.oneway
     def add_rows(self, num_rows: int):
         with self.lock:
-            self.multiplayer_instance.tetris_field.add_rows(num_rows)
-            for uri, peer in self.peers.items():
-                peer.set_tetris_field(self.player_name, self.multiplayer_instance.tetris_field.field)
+            if self.multiplayer_instance:
+                self.multiplayer_instance.tetris_field.add_rows(num_rows)
+                for uri, peer in self.peers.items():
+                    peer.set_tetris_field(self.player_name, self.multiplayer_instance.tetris_field.field)
 
     @Pyro4.expose
     @Pyro4.oneway
     def set_is_dead(self, player_name):
         with self.lock:
-            self.multiplayer_instance.is_dead[player_name] = True
-            self.multiplayer_instance.check_i_win()
+            if self.multiplayer_instance:
+                self.multiplayer_instance.is_dead[player_name] = True
+                self.multiplayer_instance.check_i_win()
 
     @Pyro4.expose
     def set_winner(self, player_name):
-        self.multiplayer_instance.winner = player_name
-        self.multiplayer_instance.is_running = False
+        with self.lock:
+            if self.multiplayer_instance:
+                self.multiplayer_instance.winner = player_name
+                self.multiplayer_instance.is_running = False
 
     def reset(self):
         self.lobby: Pyro4.Daemon | None = None
