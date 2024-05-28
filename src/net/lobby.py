@@ -82,4 +82,5 @@ class Lobby:
             return self.max_players
 
     def deactivate(self):
-        self.active = False
+        with self.lock:
+            self.active = False

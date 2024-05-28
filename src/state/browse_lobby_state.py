@@ -47,14 +47,14 @@ class BrowseLobbyState(GameState):
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.new_lobby_button:
-                    if self.peer.new_lobby():
-                        return 'LOBBY'
+                    self.peer.new_lobby()
+                    return 'LOBBY'
 
             if event.type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION:
                 if event.ui_element == self.lobby_selection_list:
                     lobby_name = event.text
-                    if self.peer.connect_to_lobby(lobby_name):
-                        return 'LOBBY'
+                    self.peer.connect_to_lobby(lobby_name)
+                    return 'LOBBY'
 
             self.ui_manager.process_events(event)
 

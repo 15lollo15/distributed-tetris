@@ -2,6 +2,7 @@ from random import Random
 from typing import Dict, List
 
 import Pyro4
+import Pyro4.errors
 import pygame as pg
 from pygame import Surface
 
@@ -14,7 +15,7 @@ from tetris_field import BlockType
 class MultiPlayerState(SinglePlayerState):
 
     def __init__(self, peer: Peer | None):
-        super().__init__(peer=peer)
+        super().__init__()
         self.peer = peer
         self.seed = self.peer.seed
         self.rng = Random(self.seed)
@@ -87,6 +88,14 @@ class MultiPlayerState(SinglePlayerState):
     def get_alive(self) -> List[Pyro4.Proxy]:
         return [self.peer.peers[player_name] for player_name, is_dead in self.is_dead.items() if not is_dead]
 
+    def check_reachable(self):
+        for player_name, proxy in self.peer.peers.items():
+            try:
+                proxy.is_reachable()
+            except Pyro4.errors.CommunicationError:
+                self.is_dead[player_name] = True
+        self.check_i_win()
+
     def update(self, delta_time: int):
         if not self.is_running:
             return
@@ -95,16 +104,24 @@ class MultiPlayerState(SinglePlayerState):
             self.all_ready = self.peer.all_ready()
             return
 
+        # print('checking reachable...')
+        # self.check_reachable()
+        # print('checking reachable... done')
+
         if self.i_win:
             print('you win')
             for peer in self.peer.peers.values():
-                peer.set_winner(self.peer.player_name)
+                try:
+                    peer.set_winner(self.peer.player_name)
+                except Pyro4.errors.CommunicationError:
+                    pass
             self.is_running = False
             return
 
         self.tetris_field_sf.fill(BlockType.NONE.value)
         self.check_i_win()
         self.tetromino.update()
+        print(self.tetromino.pos)
         if self.tetromino.is_dead:
             if self.tetromino.pos.y < 0:
                 print('you lose')
@@ -132,7 +149,7 @@ class MultiPlayerState(SinglePlayerState):
             self.next_tetromino = self.random_tetromino()
             self.draw_next_tetronimo()
 
-            for _, peer in self.peer.peers.items():
+            for peer in self.get_alive():
                 peer.set_tetris_field(self.peer.player_name, self.tetris_field.field)
 
         self.draw_field(self.tetris_field.field, self.tetris_field_sf)

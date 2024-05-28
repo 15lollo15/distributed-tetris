@@ -34,7 +34,7 @@ class SinglePlayerState(GameState):
 
         self.setup()
 
-    def setup(self):
+    def setup(self, seed=None):
         self.seed = None
         self.rng = Random(self.seed)
 

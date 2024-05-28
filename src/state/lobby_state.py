@@ -6,14 +6,14 @@ import pygame_gui
 from pygame import Surface, Event
 
 import settings
-from net.peer import Peer
+from net.tetris_peer import TetrisPeer
 from state.game_state import GameState
 
 
 # TODO: Refresh at start
 class LobbyState(GameState):
 
-    def __init__(self, peer: Peer):
+    def __init__(self, peer: TetrisPeer):
         self.peer = peer
         self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, 'data/theme.json')
         self.players_selection_list: pygame_gui.elements.UISelectionList = None
@@ -52,7 +52,7 @@ class LobbyState(GameState):
         self.play_button = pygame_gui.elements.UIButton(play_button_rect, 'Play', manager=self.ui_manager)
 
     def handle_events(self, events: List[Event]) -> str | None:
-        if self.peer.is_ready:
+        if self.peer.is_running:
             return 'MULTI_PLAYER'
 
         if self.crashed:
@@ -62,38 +62,37 @@ class LobbyState(GameState):
 
         for event in events:
             if event.type == pg.QUIT:
-                if self.peer.is_host():
-                    self.peer.shutdown_lobby()
+                self.peer.disconnect_from_lobby()
                 return 'QUIT'
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.back_button:
-                    if self.peer.is_host():
-                        self.peer.shutdown_lobby()
-                    else:
-                        self.peer.disconnect()
+                    self.peer.disconnect_from_lobby()
                     return 'BROWSE_LOBBY'
                 if event.ui_element == self.play_button:
-                    self.peer.share_peers()
-                    self.peer.shutdown_lobby(reset=False)
+                    self.peer.broadcast_peers()
+                    self.peer.broadcast_seed()
+                    self.peer.broadcast_start_game()
                     return 'MULTI_PLAYER'
 
             self.ui_manager.process_events(event)
 
     def update(self, delta_time: int):
-        if self.crashed or self.peer.is_ready:
+        if self.crashed or self.peer.is_running:
             return
         try:
+            if not self.peer.in_lobby():
+                return
             self.ui_manager.update(delta_time)
             self.time_elapsed += delta_time
             if self.time_elapsed > 5000:
-                players_dict: Dict[str, str] = self.peer.lobby_proxy.list_players()
+                players_dict: Dict[str, str] = self.peer.lobby_descriptor.proxy.list_players()
                 self.players_selection_list.set_item_list(list(players_dict.keys()))
                 self.time_elapsed = 0
-            self.lobby_name_label.set_text(self.peer.lobby_proxy.get_name())
+            self.lobby_name_label.set_text(self.peer.lobby_descriptor.proxy.get_name())
 
-            connected_players = self.peer.lobby_proxy.get_players_number()
-            max_players = self.peer.lobby_proxy.get_max_players_number()
+            connected_players = self.peer.lobby_descriptor.proxy.get_players_number()
+            max_players = self.peer.lobby_descriptor.proxy.get_max_players_number()
             players_text = f'({connected_players}/{max_players})'
             self.num_players_label.set_text(players_text)
         except Pyro4.errors.ConnectionClosedError:

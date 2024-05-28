@@ -2,6 +2,7 @@ import pygame as pg
 
 import settings
 from net.peer import Peer
+from net.tetris_peer import TetrisPeer
 from state.state_manager import StateManager
 
 
@@ -11,7 +12,7 @@ class Game:
         self.screen = pg.display.set_mode(settings.SCREEN_SIZE)
         self.clock = pg.time.Clock()
         self.is_running = False
-        self.peer = Peer(player_name=player_name)
+        self.peer = TetrisPeer(player_name=player_name)
         self.state_manager = StateManager(self.peer)
 
     def run(self):
