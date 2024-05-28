@@ -18,16 +18,19 @@ class TetrisPeer(Peer):
         self.is_running = False
 
     @check_active
+    def broad_cast_setup_game(self):
+        if self.is_running:
+            raise AlreadyInGame()
+        for player_name, proxy in self.peers.items():
+            proxy.setup_game()
+        self.setup_game()
+
+    @check_active
     def broadcast_start_game(self):
         if self.is_running:
             raise AlreadyInGame()
-        threads: List[threading.Thread] = []
         for player_name, proxy in self.peers.items():
-            thread = threading.Thread(target=proxy.start_game)
-            thread.start()
-            threads.append(thread)
-        for thread in threads:
-            thread.join()
+            proxy.start_game()
         self.start_game()
 
     @check_active
@@ -48,11 +51,20 @@ class TetrisPeer(Peer):
 
     @check_active
     @Pyro4.expose
-    def start_game(self):
+    def setup_game(self):
         with self.lock:
             if self.is_running:
                 raise AlreadyInGame()
             self.multiplayer_state.setup(self.seed)
+
+    @check_active
+    @Pyro4.expose
+    @Pyro4.oneway
+    def start_game(self):
+        with self.lock:
+            if self.is_running:
+                raise AlreadyInGame()
+            self.multiplayer_state.start_game()
             self.is_running = True
 
     @check_active

@@ -72,6 +72,7 @@ class LobbyState(GameState):
                 if event.ui_element == self.play_button:
                     self.peer.broadcast_peers()
                     self.peer.broadcast_seed()
+                    self.peer.broad_cast_setup_game()
                     self.peer.broadcast_start_game()
                     return 'MULTI_PLAYER'
 
