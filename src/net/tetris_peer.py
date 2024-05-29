@@ -2,6 +2,7 @@ from random import Random
 from typing import List
 
 import Pyro4
+import Pyro4.errors
 
 from net.peer import Peer, check_active
 from state.impl.multi_player_state import MultiPlayerState
@@ -30,7 +31,10 @@ class TetrisPeer(Peer):
             if not self.is_running:
                 raise NotInGame()
             for player_name, proxy in self.peers.items():
-                proxy.set_lose(self.player_name)
+                try:
+                    proxy.set_lose(self.player_name)
+                except Pyro4.errors.CommunicationError:
+                    self.multiplayer_state.set_is_dead(player_name)
 
     @check_active
     def broadcast_set_tetris_field(self):
@@ -38,7 +42,10 @@ class TetrisPeer(Peer):
             if not self.is_running:
                 raise NotInGame()
             for player_name, proxy in self.peers.items():
-                proxy.set_tetris_field(self.player_name, self.multiplayer_state.tetris_field.field)
+                try:
+                    proxy.set_tetris_field(self.player_name, self.multiplayer_state.tetris_field.field)
+                except Pyro4.errors.CommunicationError:
+                    self.multiplayer_state.set_is_dead(player_name)
 
     @check_active
     def broadcast_setup_game(self):

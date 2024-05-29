@@ -38,6 +38,10 @@ class MultiPlayerState(SinglePlayerState):
         self.init_peers_fields_sf()
 
     def handle_events(self, events: List[Event]) -> str | None:
+        for event in events:
+            if event.type == pg.QUIT:
+                self.peer.broadcast_i_lose()
+
         if self.i_win or self.i_lose:
             self.peer.reset()
             return 'MENU'
@@ -57,7 +61,7 @@ class MultiPlayerState(SinglePlayerState):
     def get_alive(self) -> List[Pyro4.Proxy]:
         return [self.peer.peers[player_name] for player_name, is_dead in self.is_dead.items() if not is_dead]
 
-    def hit_a_peer(self, count: int):
+    def hit_a_peer(self, count: int): # TODO: Move this in peer
         with self.lock:
             if count > 0:
                 enemy_peer = Random().choice(self.get_alive())
