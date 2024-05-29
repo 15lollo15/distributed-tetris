@@ -4,7 +4,7 @@ import pygame as pg
 import pygame_gui
 from pygame import Surface, Event
 
-import settings
+from utils import settings
 from net.peer import Peer
 from state.game_state import GameState
 
@@ -47,7 +47,7 @@ class BrowseLobbyState(GameState):
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.new_lobby_button:
-                    self.peer.new_lobby()
+                    self.peer.new_lobby(settings.MAX_PLAYERS)
                     return 'LOBBY'
 
             if event.type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION:

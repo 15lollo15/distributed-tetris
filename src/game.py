@@ -1,6 +1,6 @@
 import pygame as pg
 
-import settings
+from utils import settings
 from net.tetris_peer import TetrisPeer
 from state.state_manager import StateManager
 

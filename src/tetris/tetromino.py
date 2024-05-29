@@ -1,9 +1,9 @@
 import pygame as pg
 
-import settings
-from shape import Shape
-from tetris_field import BlockType, TetrisField
-from utils import rotate_matrix
+from utils import settings
+from utils.utils import rotate_matrix
+from .shape import Shape
+from .tetris_field import BlockType, TetrisField
 
 TETROMINO_SHAPES = {
     BlockType.I_BLOCK: [Shape([

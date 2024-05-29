@@ -6,9 +6,9 @@ import Pyro4
 import pygame as pg
 from pygame import Event, Surface
 
-import settings
-from state.single_player_state import SinglePlayerState
-from tetris_field import BlockType
+from utils import settings
+from state.impl.single_player_state import SinglePlayerState
+from tetris.tetris_field import BlockType
 
 
 class MultiPlayerState(SinglePlayerState):

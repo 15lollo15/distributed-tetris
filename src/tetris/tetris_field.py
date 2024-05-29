@@ -1,7 +1,7 @@
 from enum import Enum
 from random import Random
 
-import settings
+from utils import settings
 
 
 class BlockType(Enum):

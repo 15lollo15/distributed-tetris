@@ -1,12 +1,12 @@
 from typing import Dict
 
 from net.tetris_peer import TetrisPeer
-from state.browse_lobby_state import BrowseLobbyState
+from state.impl.browse_lobby_state import BrowseLobbyState
 from state.game_state import GameState
-from state.lobby_state import LobbyState
-from state.menu_state import MenuState
-from state.multi_player_state import MultiPlayerState
-from state.single_player_state import SinglePlayerState
+from state.impl.lobby_state import LobbyState
+from state.impl.menu_state import MenuState
+from state.impl.multi_player_state import MultiPlayerState
+from state.impl.single_player_state import SinglePlayerState
 
 
 class StateManager:

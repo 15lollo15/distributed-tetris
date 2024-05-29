@@ -4,10 +4,10 @@ from typing import List, Tuple
 import pygame as pg
 from pygame import Surface, Event
 
-import settings
+from utils import settings
 from state.game_state import GameState
-from tetris_field import TetrisField, BlockType
-from tetromino import preload_tetrominos, Tetromino
+from tetris.tetris_field import TetrisField, BlockType
+from tetris.tetromino import preload_tetrominos, Tetromino
 
 
 class SinglePlayerState(GameState):

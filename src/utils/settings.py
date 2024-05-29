@@ -28,3 +28,5 @@ NEXT_LEVEL_GAP.extend([(100 + (i + 1) * 10) for i in range(10)])
 NEXT_LEVEL_GAP.extend([200 for _ in range(3)])
 
 rng = Random(15)
+
+MAX_PLAYERS = 10

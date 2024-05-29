@@ -5,7 +5,7 @@ import pygame_gui
 from pygame import Surface
 from pygame.event import Event
 
-import settings
+from utils import settings
 from state.game_state import GameState
 
 

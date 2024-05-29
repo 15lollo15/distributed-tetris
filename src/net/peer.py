@@ -151,9 +151,9 @@ class Peer:
             self.lobby_descriptor = None
 
     @check_active
-    def _generate_lobby(self) -> LobbyDescriptor:
+    def _generate_lobby(self, max_players: int) -> LobbyDescriptor:
         lobby_daemon: Pyro4.Daemon = Pyro4.Daemon()
-        lobby_instance = Lobby(5, name=self.my_lobby_name)  # TODO: Add in configuration
+        lobby_instance = Lobby(max_players, name=self.my_lobby_name)
         lobby_uri = lobby_daemon.register(lobby_instance)
         self.name_server.register(self.my_lobby_name, lobby_uri, metadata=['lobby'], safe=True)
         lobby_thread = threading.Thread(target=lobby_daemon.requestLoop)
@@ -168,10 +168,10 @@ class Peer:
         )
 
     @check_active
-    def new_lobby(self):
+    def new_lobby(self, max_players: int):
         if self.in_lobby():
             raise AlreadyInLobby()
-        self.lobby_descriptor = self._generate_lobby()
+        self.lobby_descriptor = self._generate_lobby(max_players)
         self.lobby_descriptor.proxy.join_lobby(self.player_name, self.uri)
 
     @check_active

@@ -4,8 +4,8 @@ from typing import List
 import Pyro4
 
 from net.peer import Peer, check_active
-from state.multi_player_state import MultiPlayerState
-from tetris_field import BlockType
+from state.impl.multi_player_state import MultiPlayerState
+from tetris.tetris_field import BlockType
 
 
 class TetrisPeer(Peer):
