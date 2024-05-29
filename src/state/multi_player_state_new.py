@@ -1,8 +1,10 @@
 import threading
 from typing import Dict, List
 
+import Pyro4
 from pygame import Event
 
+import settings
 from state.single_player_state import SinglePlayerState
 from tetris_field import BlockType
 
@@ -45,6 +47,14 @@ class MultiPlayerState(SinglePlayerState):
                 return
         self.i_win = True
 
+    def get_alive(self) -> List[Pyro4.Proxy]:
+        return [self.peer.peers[player_name] for player_name, is_dead in self.is_dead.items() if not is_dead]
+
+    def hit_a_peer(self, count: int):
+        if count > 0:
+            enemy_peer = settings.rng.choice(self.get_alive())
+            enemy_peer.add_rows(count)
+
     def update(self, delta_time: int):
         if not self.is_running:
             return
@@ -60,6 +70,7 @@ class MultiPlayerState(SinglePlayerState):
                 return
             self.add_tetronimo_to_field()
             count = self.tetris_field.remove_full_rows()
+            self.hit_a_peer(count)
             self.level_progress(count)
             self.new_tetromino()
         self.draw_field(self.tetris_field.field, self.tetris_field_sf)

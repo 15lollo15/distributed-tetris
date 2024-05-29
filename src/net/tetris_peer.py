@@ -24,10 +24,11 @@ class TetrisPeer(Peer):
 
     @check_active
     def broadcast_i_lose(self):
-        if not self.is_running:
-            raise NotInGame()
-        for player_name, proxy in self.peers.items():
-            proxy.set_lose(self.player_name)
+        with self.lock:
+            if not self.is_running:
+                raise NotInGame()
+            for player_name, proxy in self.peers.items():
+                proxy.set_lose(self.player_name)
 
     @check_active
     def broadcast_setup_game(self):
@@ -85,6 +86,15 @@ class TetrisPeer(Peer):
     def quit_game(self):
         with self.lock:
             self.is_running = False
+
+    @check_active
+    @Pyro4.expose
+    @Pyro4.oneway
+    def add_rows(self, num_rows: int):
+        with self.lock:
+            if not self.is_running:
+                raise NotInGame()
+            self.multiplayer_state.tetris_field.add_rows(num_rows)
 
     def reset(self):
         super().reset()
