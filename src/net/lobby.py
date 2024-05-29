@@ -55,7 +55,7 @@ class Lobby:
         with self.lock:
             if player_name not in self.players:
                 raise PlayerNotInLobby("Player is not in the lobby.")
-            del self.players[player_name]
+            self.players.pop(player_name)
 
     @check_active
     @Pyro4.expose

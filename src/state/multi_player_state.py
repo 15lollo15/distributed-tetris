@@ -1,163 +1,102 @@
+import threading
 from random import Random
 from typing import Dict, List
 
 import Pyro4
-import Pyro4.errors
 import pygame as pg
-from pygame import Surface
+from pygame import Event, Surface
 
 import settings
-from net.peer import Peer
 from state.single_player_state import SinglePlayerState
 from tetris_field import BlockType
 
 
 class MultiPlayerState(SinglePlayerState):
 
-    def __init__(self, peer: Peer | None):
+    def __init__(self, peer):
         super().__init__()
-        self.peer = peer
-        self.seed = self.peer.seed
-        self.rng = Random(self.seed)
-
-        self.peers_fields = {}
-        self.peers_fields_sf = {}
+        self.lock = threading.Lock()
+        from net.tetris_peer import TetrisPeer
+        self.peer: TetrisPeer = peer
         self.is_dead: Dict[str, bool] = {}
-
-        self.init_is_dead()
-        self.init_peers_fields()
+        self.i_win = False
+        self.peers_fields_sf: Dict[str, pg.Surface] = {}
         self.init_peers_fields_sf()
 
-        self.peer.multiplayer_instance = self
-        self.is_read_to_play = True
-        self.all_ready = False
+    def set_is_dead(self, player_name: str):
+        with self.lock:
+            self.is_dead[player_name] = True
+
+    def init_is_dead(self, players: List[str]):
+        self.is_dead = {player: False for player in players}
+
+    def setup(self, seed=None):
+        super().setup(seed)
+        self.is_dead: Dict[str, bool] = {}
+        self.i_win = False
+        self.peers_fields_sf = {}
+        self.init_peers_fields_sf()
+
+    def handle_events(self, events: List[Event]) -> str | None:
+        if self.i_win or self.i_lose:
+            self.peer.reset()
+            return 'MENU'
+        return super().handle_events(events)
 
     def on_change(self):
-        super().on_change()
-        self.seed = self.peer.seed
-        self.rng = Random(self.seed)
-        print('seed: ' + str(self.seed))
-
-        self.peers_fields = {}
-        self.peers_fields_sf = {}
-        self.is_dead = {}
-
-        self.init_is_dead()
-        self.init_peers_fields()
-        self.init_peers_fields_sf()
-
-        self.peer.multiplayer_instance = self
-        self.all_ready = False
-        self.is_read_to_play = True
-
-    def init_is_dead(self):
-        for player_name, _ in self.peer.peers.items():
-            self.is_dead[player_name] = False
-
-    def init_peers_fields(self):
-        for player_name, _ in self.peer.peers.items():
-            if player_name == self.peer.player_name:
-                continue
-            self.peers_fields_sf[player_name] = pg.Surface((settings.TETRIS_FIELD_WIDTH * settings.PREVIEW_BLOCK_SIZE,
-                                                            settings.TETRIS_FIELD_HEIGHT * settings.PREVIEW_BLOCK_SIZE))
-
-    def init_peers_fields_sf(self):
-        for player_name, _ in self.peer.peers.items():
-            if player_name == self.peer.player_name:
-                continue
-            self.peers_fields[player_name] = [[BlockType.NONE.value for __ in range(settings.TETRIS_FIELD_WIDTH)] for _
-                                              in
-                                              range(settings.TETRIS_FIELD_HEIGHT)]
-
-    def draw_peers_tetris_fields(self):
-        for player_name, field in list(self.peers_fields.items()):
-            if field is None:
-                continue
-            field_sf = self.peers_fields_sf[player_name]
-            self.draw_field(field, field_sf, is_preview=True)
+        # Do nothing because is set up by the peer
+        pass
 
     def check_i_win(self):
-        for player_name, is_dead in list(self.is_dead.items()):
-            if player_name == self.peer.player_name:
-                continue
-            if not is_dead:
-                return
-        if not self.i_lose:
+        with self.lock:
+            for is_dead in self.is_dead.values():
+                if not is_dead:
+                    return
             self.i_win = True
 
     def get_alive(self) -> List[Pyro4.Proxy]:
         return [self.peer.peers[player_name] for player_name, is_dead in self.is_dead.items() if not is_dead]
 
-    def check_reachable(self):
-        for player_name, proxy in self.peer.peers.items():
-            try:
-                proxy.is_reachable()
-            except Pyro4.errors.CommunicationError:
-                self.is_dead[player_name] = True
-        self.check_i_win()
+    def hit_a_peer(self, count: int):
+        with self.lock:
+            if count > 0:
+                enemy_peer = Random().choice(self.get_alive())
+                enemy_peer.add_rows(count)
+
+    def init_peers_fields_sf(self):
+        for player_name, _ in self.peer.peers.items():
+            self.peers_fields_sf[player_name] = pg.Surface((settings.TETRIS_FIELD_WIDTH * settings.PREVIEW_BLOCK_SIZE,
+                                                            settings.TETRIS_FIELD_HEIGHT * settings.PREVIEW_BLOCK_SIZE))
+            self.peers_fields_sf[player_name].fill(BlockType.NONE.value)
+
+    def draw_peer_tetris_field(self, player_name: str, tetris_field: List[List[BlockType]]):
+        with self.lock:
+            field_sf = self.peers_fields_sf[player_name]
+            self.draw_field(tetris_field, field_sf, is_preview=True)
 
     def update(self, delta_time: int):
         if not self.is_running:
             return
-
-        if not self.all_ready:
-            self.all_ready = self.peer.all_ready()
-            return
-
-        # print('checking reachable...')
-        # self.check_reachable()
-        # print('checking reachable... done')
-
-        if self.i_win:
-            print('you win')
-            for peer in self.peer.peers.values():
-                try:
-                    peer.set_winner(self.peer.player_name)
-                except Pyro4.errors.CommunicationError:
-                    pass
-            self.is_running = False
-            return
-
         self.tetris_field_sf.fill(BlockType.NONE.value)
-        self.check_i_win()
         self.tetromino.update()
-        print(self.tetromino.pos)
+        self.check_i_win()
+        if self.i_win:
+            return
         if self.tetromino.is_dead:
-            if self.tetromino.pos.y < 0:
-                print('you lose')
-                self.i_lose = True
-                for peer in self.peer.peers.values():
-                    peer.set_is_dead(self.peer.player_name)
-                self.is_running = False
+            self.check_if_lose()
+            if self.i_lose:
+                self.peer.broadcast_i_lose()
                 return
             self.add_tetronimo_to_field()
             count = self.tetris_field.remove_full_rows()
-
-            if count > 0:
-                enemy_peer = settings.rng.choice(self.get_alive())
-                enemy_peer.add_rows(count)
-            exceed = self.to_next_level - count
-            self.to_next_level -= count
-
-            if self.to_next_level <= 0:
-                self.level = min(self.level + 1, len(settings.NEXT_LEVEL_GAP) - 1)
-                self.to_next_level = settings.NEXT_LEVEL_GAP[self.level]
-                self.to_next_level -= exceed
-
-            self.tetromino = self.next_tetromino
-            self.tetromino.set_level(self.level)
-            self.next_tetromino = self.random_tetromino()
-            self.draw_next_tetronimo()
-
-            for peer in self.get_alive():
-                peer.set_tetris_field(self.peer.player_name, self.tetris_field.field)
-
+            self.hit_a_peer(count)
+            self.level_progress(count)
+            self.new_tetromino()
+            self.peer.broadcast_set_tetris_field()
         self.draw_field(self.tetris_field.field, self.tetris_field_sf)
         self.draw_tetronimo()
-        self.draw_peers_tetris_fields()
 
-    def render(self, screen: Surface):
-        super().render(screen)
+    def render_peers_fields(self, screen: Surface):
         for i, sf in enumerate(self.peers_fields_sf.values()):
             row = i // 5
             col = i % 5
@@ -168,3 +107,7 @@ class MultiPlayerState(SinglePlayerState):
             space_y = settings.SCREEN_HEIGHT // 2
             padding_y = (space_y - settings.PREVIEW_BLOCK_SIZE * settings.TETRIS_FIELD_HEIGHT) // 2
             screen.blit(sf, (col * space + spacing + padding_x, row * space_y + padding_y))
+
+    def render(self, screen: Surface):
+        super().render(screen)
+        self.render_peers_fields(screen)

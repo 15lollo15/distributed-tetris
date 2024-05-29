@@ -5,7 +5,7 @@ from state.browse_lobby_state import BrowseLobbyState
 from state.game_state import GameState
 from state.lobby_state import LobbyState
 from state.menu_state import MenuState
-from state.multi_player_state_new import MultiPlayerState
+from state.multi_player_state import MultiPlayerState
 from state.single_player_state import SinglePlayerState
 
 

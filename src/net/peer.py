@@ -52,6 +52,30 @@ class Peer:
 
         self.active = True
 
+    def list_lobby_players(self):
+        with self.lock:
+            if not self.in_lobby:
+                raise NotInLobby()
+            return self.lobby_descriptor.proxy.list_players()
+
+    def get_lobby_name(self):
+        with self.lock:
+            if not self.in_lobby:
+                raise NotInLobby()
+            return self.lobby_descriptor.proxy.get_name()
+
+    def get_lobby_players_number(self):
+        with self.lock:
+            if not self.in_lobby:
+                raise NotInLobby()
+            return self.lobby_descriptor.proxy.get_players_number()
+
+    def get_lobby_max_players_number(self):
+        with self.lock:
+            if not self.in_lobby:
+                raise NotInLobby()
+            return self.lobby_descriptor.proxy.get_max_players_number()
+
     @check_active
     def kill(self):
         if self.in_lobby():
@@ -83,6 +107,7 @@ class Peer:
         self.get_peers()
         for player_name, proxy in self.peers.items():
             proxy.get_peers()
+        for player_name, proxy in self.peers.items():
             proxy.disconnect_from_lobby()
         self.disconnect_from_lobby()
 

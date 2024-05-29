@@ -1,9 +1,11 @@
 from random import Random
+from typing import List
 
 import Pyro4
 
 from net.peer import Peer, check_active
-from state.multi_player_state_new import MultiPlayerState
+from state.multi_player_state import MultiPlayerState
+from tetris_field import BlockType
 
 
 class TetrisPeer(Peer):
@@ -29,6 +31,14 @@ class TetrisPeer(Peer):
                 raise NotInGame()
             for player_name, proxy in self.peers.items():
                 proxy.set_lose(self.player_name)
+
+    @check_active
+    def broadcast_set_tetris_field(self):
+        with self.lock:
+            if not self.is_running:
+                raise NotInGame()
+            for player_name, proxy in self.peers.items():
+                proxy.set_tetris_field(self.player_name, self.multiplayer_state.tetris_field.field)
 
     @check_active
     def broadcast_setup_game(self):
@@ -95,6 +105,16 @@ class TetrisPeer(Peer):
             if not self.is_running:
                 raise NotInGame()
             self.multiplayer_state.tetris_field.add_rows(num_rows)
+        self.broadcast_set_tetris_field()
+
+    @check_active
+    @Pyro4.expose
+    @Pyro4.oneway
+    def set_tetris_field(self, player_name: str, field: List[List[BlockType]]):
+        with self.lock:
+            if not self.is_running:
+                raise NotInGame()
+            self.multiplayer_state.draw_peer_tetris_field(player_name, field)
 
     def reset(self):
         super().reset()

@@ -1,3 +1,4 @@
+import threading
 from typing import List, Dict
 
 import Pyro4.errors
@@ -87,13 +88,13 @@ class LobbyState(GameState):
             self.ui_manager.update(delta_time)
             self.time_elapsed += delta_time
             if self.time_elapsed > 5000:
-                players_dict: Dict[str, str] = self.peer.lobby_descriptor.proxy.list_players()
+                players_dict: Dict[str, str] = self.peer.list_lobby_players()
                 self.players_selection_list.set_item_list(list(players_dict.keys()))
                 self.time_elapsed = 0
-            self.lobby_name_label.set_text(self.peer.lobby_descriptor.proxy.get_name())
+            self.lobby_name_label.set_text(self.peer.get_lobby_name())
 
-            connected_players = self.peer.lobby_descriptor.proxy.get_players_number()
-            max_players = self.peer.lobby_descriptor.proxy.get_max_players_number()
+            connected_players = self.peer.get_lobby_players_number()
+            max_players = self.peer.get_lobby_max_players_number()
             players_text = f'({connected_players}/{max_players})'
             self.num_players_label.set_text(players_text)
         except Pyro4.errors.ConnectionClosedError:

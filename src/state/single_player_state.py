@@ -33,8 +33,6 @@ class SinglePlayerState(GameState):
 
         self.is_running: bool | None = None
 
-        self.setup()
-
     def start_game(self):
         self.is_running = True
 
