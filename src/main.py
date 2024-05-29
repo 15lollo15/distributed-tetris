@@ -5,7 +5,6 @@ from game import Game
 
 # TODO: Close app
 # TODO: Reset after play
-# TODO: Quit button on menu
 # TODO: Disconnect during play (peer must die)
 # TODO: Exceptions
 
