@@ -208,6 +208,5 @@ class Tetromino:
         if self.gravity < 0:
             self.gravity = self.gravity_sleep
             self.go_down()
-            print('go down')
 
         self.place_shadow()

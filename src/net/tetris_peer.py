@@ -86,10 +86,15 @@ class TetrisPeer(Peer):
         with self.lock:
             self.is_running = False
 
+    def reset(self):
+        super().reset()
+        self.is_running = False
+        self.seed = None
+
 
 class AlreadyInGame(Exception):
     pass
 
+
 class NotInGame(Exception):
     pass
-

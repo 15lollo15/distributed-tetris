@@ -1,6 +1,5 @@
 from typing import Dict
 
-from net.peer import Peer
 from net.tetris_peer import TetrisPeer
 from state.browse_lobby_state import BrowseLobbyState
 from state.game_state import GameState

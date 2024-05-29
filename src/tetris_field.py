@@ -1,4 +1,5 @@
 from enum import Enum
+from random import Random
 
 import settings
 
@@ -15,8 +16,8 @@ class BlockType(Enum):
     WALL_BLOCK = (101, 116, 205)
 
     @staticmethod
-    def random_block():
-        return settings.rng.choice([
+    def random_block(rng: Random):
+        return rng.choice([
             BlockType.L_BLOCK,
             BlockType.J_BLOCK,
             BlockType.I_BLOCK,

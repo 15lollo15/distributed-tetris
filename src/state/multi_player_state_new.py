@@ -30,7 +30,8 @@ class MultiPlayerState(SinglePlayerState):
         self.i_win = False
 
     def handle_events(self, events: List[Event]) -> str | None:
-        if self.i_win:
+        if self.i_win or self.i_lose:
+            self.peer.reset()
             return 'MENU'
         return super().handle_events(events)
 

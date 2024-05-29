@@ -94,9 +94,8 @@ class SinglePlayerState(GameState):
                                  border_radius=5)
 
     def random_tetromino(self) -> Tetromino:
-        block_type = BlockType.random_block()
+        block_type = BlockType.random_block(self.rng)
         rotation = self.rng.randint(0, 3)
-        print(rotation)
         return Tetromino(block_type, self.tetris_field, rotation=rotation)
 
     def handle_events(self, events: List[Event]) -> str | None:

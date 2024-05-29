@@ -1,7 +1,6 @@
 import logging
 import threading
 from dataclasses import dataclass
-from random import Random
 from typing import Dict
 
 import Pyro4

@@ -161,7 +161,9 @@ class Peer:
         self.lobby_descriptor = None
 
     def reset(self):
-        self.lobby_descriptor = None
+        if self.in_lobby():
+            self.disconnect_from_lobby()
+
 
 class AlreadyInLobby(Exception):
     pass
