@@ -5,9 +5,9 @@ import pygame as pg
 import pygame_gui
 from pygame import Surface, Event
 
-from utils import settings
 from net.tetris_peer import TetrisPeer
 from state.game_state import GameState
+from utils import settings
 
 
 class LobbyState(GameState):

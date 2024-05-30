@@ -1,14 +1,11 @@
-import threading
-from random import Random
 from typing import Dict, List
 
-import Pyro4
 import pygame as pg
 from pygame import Event, Surface
 
-from utils import settings
 from state.impl.single_player_state import SinglePlayerState
 from tetris.tetris_field import BlockType
+from utils import settings
 
 
 class MultiPlayerState(SinglePlayerState):

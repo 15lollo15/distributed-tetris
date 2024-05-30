@@ -5,8 +5,8 @@ import pygame_gui
 from pygame import Surface
 from pygame.event import Event
 
-from utils import settings
 from state.game_state import GameState
+from utils import settings
 
 
 # TODO: Player name input

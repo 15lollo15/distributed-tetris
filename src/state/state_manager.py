@@ -1,8 +1,8 @@
 from typing import Dict
 
 from net.tetris_peer import TetrisPeer
-from state.impl.browse_lobby_state import BrowseLobbyState
 from state.game_state import GameState
+from state.impl.browse_lobby_state import BrowseLobbyState
 from state.impl.lobby_state import LobbyState
 from state.impl.menu_state import MenuState
 from state.impl.multi_player_state import MultiPlayerState

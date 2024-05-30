@@ -5,12 +5,11 @@ import pygame_gui
 from pygame import Surface, Event
 
 from net.exceptions import PlayerAlreadyIn, LobbyFull
-from utils import settings
 from net.peer import Peer, LobbyNameAlreadyTaken
 from state.game_state import GameState
+from utils import settings
 
 
-# TODO: Info messages
 class BrowseLobbyState(GameState):
 
     def __init__(self, peer: Peer):
@@ -56,6 +55,9 @@ class BrowseLobbyState(GameState):
                         self.peer.new_lobby(settings.MAX_PLAYERS)
                     except LobbyNameAlreadyTaken:
                         print('Lobby name already taken')
+                        pygame_gui.windows.ui_message_window.UIMessageWindow(pg.Rect(750, 350, 200, 100),
+                                                                             'Lobby name already taken',
+                                                                             manager=self.ui_manager)
                         return
                     return 'LOBBY'
 
@@ -66,9 +68,15 @@ class BrowseLobbyState(GameState):
                         self.peer.connect_to_lobby(lobby_name)
                     except PlayerAlreadyIn:
                         print('Player already in lobby')
+                        pygame_gui.windows.ui_message_window.UIMessageWindow(pg.Rect(750, 350, 200, 100),
+                                                                             'Player already in lobby',
+                                                                             manager=self.ui_manager)
                         return
                     except LobbyFull:
                         print('Lobby full')
+                        pygame_gui.windows.ui_message_window.UIMessageWindow(pg.Rect(750, 350, 200, 100),
+                                                                             'Lobby full',
+                                                                             manager=self.ui_manager)
                         return
                     return 'LOBBY'
 
@@ -91,5 +99,3 @@ class BrowseLobbyState(GameState):
     def on_change(self):
         super().on_change()
         self.refresh()
-
-
