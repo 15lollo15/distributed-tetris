@@ -9,6 +9,7 @@ from utils import settings
 from state.game_state import GameState
 
 
+# TODO: Player name input
 class MenuState(GameState):
 
     def __init__(self):

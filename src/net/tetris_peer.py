@@ -27,6 +27,7 @@ class TetrisPeer(Peer):
 
     @check_active
     def broadcast_i_lose(self):
+        crashed: List[str] = []
         with self.lock:
             if not self.is_running:
                 raise NotInGame()
@@ -35,9 +36,13 @@ class TetrisPeer(Peer):
                     proxy.set_lose(self.player_name)
                 except Pyro4.errors.CommunicationError:
                     self.multiplayer_state.set_is_dead(player_name)
+                    crashed.append(player_name)
+        for player_name in crashed:
+            self.peers.pop(player_name)
 
     @check_active
     def broadcast_set_tetris_field(self):
+        crashed: List[str] = []
         with self.lock:
             if not self.is_running:
                 raise NotInGame()
@@ -46,6 +51,10 @@ class TetrisPeer(Peer):
                     proxy.set_tetris_field(self.player_name, self.multiplayer_state.tetris_field.field)
                 except Pyro4.errors.CommunicationError:
                     self.multiplayer_state.set_is_dead(player_name)
+                    crashed.append(player_name)
+        for player_name in crashed:
+            self.peers.pop(player_name)
+
 
     @check_active
     def broadcast_setup_game(self):
