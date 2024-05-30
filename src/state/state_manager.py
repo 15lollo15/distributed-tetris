@@ -13,14 +13,14 @@ class StateManager:
     def __init__(self, peer: TetrisPeer):
         self.peer = peer
         self.states: Dict[str, GameState] = {
-            'MENU': MenuState(),
+            'MENU': MenuState(peer),
             'BROWSE_LOBBY': BrowseLobbyState(peer),
             'LOBBY': LobbyState(peer),
             'SINGLE_PLAYER': SinglePlayerState(),
             'MULTI_PLAYER': MultiPlayerState(self.peer)
         }
         self.peer.multiplayer_state = self.states['MULTI_PLAYER']
-        self.current_state: GameState = self.states["LOBBY"]
+        self.current_state: GameState = self.states["MENU"]
 
     def change_state(self, new_state):
         old_state = self.current_state

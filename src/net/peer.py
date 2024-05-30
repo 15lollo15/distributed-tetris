@@ -52,6 +52,10 @@ class Peer:
 
         self.active = True
 
+    def set_player_name(self, name: str):
+        self.player_name = name
+        self.my_lobby_name = f'{self.player_name}-lobby'
+
     def list_lobby_players(self):
         with self.lock:
             if not self.in_lobby:

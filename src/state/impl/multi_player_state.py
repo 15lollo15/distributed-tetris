@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 import pygame as pg
+import pygame_gui
 from pygame import Event, Surface
 
 from state.impl.single_player_state import SinglePlayerState
@@ -17,7 +18,7 @@ class MultiPlayerState(SinglePlayerState):
         self.is_dead: Dict[str, bool] = {}
         self.i_win = False
         self.peers_fields_sf: Dict[str, pg.Surface] = {}
-        self.init_peers_fields_sf()
+        self.ui_manager: pygame_gui.UIManager = None
 
     def set_is_dead(self, player_name: str):
         self.is_dead[player_name] = True
@@ -31,6 +32,20 @@ class MultiPlayerState(SinglePlayerState):
         self.i_win = False
         self.peers_fields_sf = {}
         self.init_peers_fields_sf()
+        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, 'data/theme.json')
+        self.init_player_tags()
+
+    def init_player_tags(self):
+        for i, player_name in enumerate(self.peer.peers.keys()):
+            row = i // 5
+            col = i % 5
+            spacing = (self.tetris_field_sf.get_width() + settings.BLOCK_SIZE + self.next_tetromino_sf.get_width()
+                       + settings.BLOCK_SIZE)
+            space = (settings.SCREEN_WIDTH - spacing) // 5
+            padding_x = (space - settings.PREVIEW_BLOCK_SIZE * settings.TETRIS_FIELD_WIDTH) // 2
+            space_y = settings.SCREEN_HEIGHT // 2
+            pygame_gui.elements.UILabel(pg.Rect(col * space + spacing + padding_x, row * space_y, 100, 50),
+                                        text=player_name, manager=self.ui_manager)
 
     def handle_events(self, events: List[Event]) -> str | None:
         for event in events:
@@ -66,6 +81,7 @@ class MultiPlayerState(SinglePlayerState):
         self.draw_field(tetris_field, field_sf, is_preview=True)
 
     def update(self, delta_time: int):
+        self.ui_manager.update(delta_time)
         if not self.is_running:
             return
         self.tetris_field_sf.fill(BlockType.NONE.value)
@@ -102,3 +118,4 @@ class MultiPlayerState(SinglePlayerState):
     def render(self, screen: Surface):
         super().render(screen)
         self.render_peers_fields(screen)
+        self.ui_manager.draw_ui(screen)
