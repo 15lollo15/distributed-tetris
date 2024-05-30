@@ -55,7 +55,7 @@ class MultiPlayerState(SinglePlayerState):
                 return
         self.i_win = True
 
-    def hit_a_peer(self, count: int): # TODO: Move this in peer
+    def hit_a_peer(self, count: int):
         self.peer.add_row_to_random_peer(count)
 
     def init_peers_fields_sf(self):

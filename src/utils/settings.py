@@ -30,3 +30,4 @@ NEXT_LEVEL_GAP.extend([200 for _ in range(3)])
 rng = Random(15)
 
 MAX_PLAYERS = 10
+REFRESH_INTERVAL = 5000

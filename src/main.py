@@ -2,6 +2,7 @@ import sys
 
 from game import Game
 
+
 # TODO: Exceptions
 
 def main(argv: list[str]):

@@ -4,13 +4,13 @@ import pygame as pg
 import pygame_gui
 from pygame import Surface, Event
 
+from net.exceptions import PlayerAlreadyIn, LobbyFull
 from utils import settings
-from net.peer import Peer
+from net.peer import Peer, LobbyNameAlreadyTaken
 from state.game_state import GameState
 
 
 # TODO: Info messages
-# TODO: Back button
 class BrowseLobbyState(GameState):
 
     def __init__(self, peer: Peer):
@@ -19,6 +19,7 @@ class BrowseLobbyState(GameState):
         self.lobby_selection_list: pygame_gui.elements.UISelectionList = None
         self.new_lobby_button: pygame_gui.elements.UIButton = None
         self.matchmaking_label: pygame_gui.elements.UILabel = None
+        self.back_button: pygame_gui.elements.UIButton = None
         self.time_elapsed: int = 0
         self.setup_ui()
 
@@ -40,20 +41,35 @@ class BrowseLobbyState(GameState):
         self.new_lobby_button = pygame_gui.elements.UIButton(new_lobby_button_rect, 'New lobby',
                                                              manager=self.ui_manager)
 
+        self.back_button = pygame_gui.elements.UIButton(pg.Rect(100, 25, 200, 50), 'Back', manager=self.ui_manager)
+
     def handle_events(self, events: List[Event]) -> str | None:
         for event in events:
             if event.type == pg.QUIT:
                 return 'QUIT'
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == self.back_button:
+                    return 'MENU'
                 if event.ui_element == self.new_lobby_button:
-                    self.peer.new_lobby(settings.MAX_PLAYERS)
+                    try:
+                        self.peer.new_lobby(settings.MAX_PLAYERS)
+                    except LobbyNameAlreadyTaken:
+                        print('Lobby name already taken')
+                        return
                     return 'LOBBY'
 
             if event.type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION:
                 if event.ui_element == self.lobby_selection_list:
                     lobby_name = event.text
-                    self.peer.connect_to_lobby(lobby_name)
+                    try:
+                        self.peer.connect_to_lobby(lobby_name)
+                    except PlayerAlreadyIn:
+                        print('Player already in lobby')
+                        return
+                    except LobbyFull:
+                        print('Lobby full')
+                        return
                     return 'LOBBY'
 
             self.ui_manager.process_events(event)
@@ -65,7 +81,7 @@ class BrowseLobbyState(GameState):
     def update(self, delta_time: int):
         self.ui_manager.update(delta_time)
         self.time_elapsed += delta_time
-        if self.time_elapsed > 5000:
+        if self.time_elapsed > settings.REFRESH_INTERVAL:
             self.refresh()
             self.time_elapsed = 0
 

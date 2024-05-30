@@ -151,11 +151,14 @@ class Peer:
             self.lobby_descriptor = None
 
     @check_active
-    def _generate_lobby(self, max_players: int) -> LobbyDescriptor:
+    def _generate_lobby(self, max_players: int) -> LobbyDescriptor | None:
         lobby_daemon: Pyro4.Daemon = Pyro4.Daemon()
         lobby_instance = Lobby(max_players, name=self.my_lobby_name)
         lobby_uri = lobby_daemon.register(lobby_instance)
-        self.name_server.register(self.my_lobby_name, lobby_uri, metadata=['lobby'], safe=True)
+        try:
+            self.name_server.register(self.my_lobby_name, lobby_uri, metadata=['lobby'], safe=True)
+        except Pyro4.errors.NamingError:
+            raise LobbyNameAlreadyTaken()
         lobby_thread = threading.Thread(target=lobby_daemon.requestLoop)
         lobby_thread.start()
 
@@ -199,4 +202,8 @@ class NotAHost(Exception):
 
 
 class NotInLobby(Exception):
+    pass
+
+
+class LobbyNameAlreadyTaken(Exception):
     pass

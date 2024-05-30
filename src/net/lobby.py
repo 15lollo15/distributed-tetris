@@ -5,6 +5,8 @@ from typing import Dict
 import Pyro4
 import Pyro4.errors
 
+from net.exceptions import PlayerAlreadyIn, LobbyFull, PlayerNotInLobby
+
 
 def check_active(method):
     @wraps(method)
@@ -14,18 +16,6 @@ def check_active(method):
         return method(self, *args, **kwargs)
 
     return wrapper
-
-
-class PlayerAlreadyIn(Exception):
-    pass
-
-
-class LobbyFull(Exception):
-    pass
-
-
-class PlayerNotInLobby(Exception):
-    pass
 
 
 class Lobby:

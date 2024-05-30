@@ -10,7 +10,6 @@ from net.tetris_peer import TetrisPeer
 from state.game_state import GameState
 
 
-# TODO: Refresh at start
 class LobbyState(GameState):
 
     def __init__(self, peer: TetrisPeer):
@@ -97,7 +96,7 @@ class LobbyState(GameState):
             return
         self.ui_manager.update(delta_time)
         self.time_elapsed += delta_time
-        if self.time_elapsed > 5000: # TODO: add to settings
+        if self.time_elapsed > settings.REFRESH_INTERVAL:
             self.refresh()
             self.time_elapsed = 0
 
