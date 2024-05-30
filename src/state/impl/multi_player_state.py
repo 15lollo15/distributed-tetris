@@ -15,7 +15,6 @@ class MultiPlayerState(SinglePlayerState):
 
     def __init__(self, peer):
         super().__init__()
-        self.lock = threading.Lock()
         from net.tetris_peer import TetrisPeer
         self.peer: TetrisPeer = peer
         self.is_dead: Dict[str, bool] = {}
@@ -24,8 +23,7 @@ class MultiPlayerState(SinglePlayerState):
         self.init_peers_fields_sf()
 
     def set_is_dead(self, player_name: str):
-        with self.lock:
-            self.is_dead[player_name] = True
+        self.is_dead[player_name] = True
 
     def init_is_dead(self, players: List[str]):
         self.is_dead = {player: False for player in players}
@@ -52,20 +50,13 @@ class MultiPlayerState(SinglePlayerState):
         pass
 
     def check_i_win(self):
-        with self.lock:
-            for is_dead in self.is_dead.values():
-                if not is_dead:
-                    return
-            self.i_win = True
-
-    def get_alive(self) -> List[Pyro4.Proxy]:
-        return [self.peer.peers[player_name] for player_name, is_dead in self.is_dead.items() if not is_dead]
+        for is_dead in self.is_dead.values():
+            if not is_dead:
+                return
+        self.i_win = True
 
     def hit_a_peer(self, count: int): # TODO: Move this in peer
-        with self.lock:
-            if count > 0:
-                enemy_peer = Random().choice(self.get_alive())
-                enemy_peer.add_rows(count)
+        self.peer.add_row_to_random_peer(count)
 
     def init_peers_fields_sf(self):
         for player_name, _ in self.peer.peers.items():
@@ -74,9 +65,8 @@ class MultiPlayerState(SinglePlayerState):
             self.peers_fields_sf[player_name].fill(BlockType.NONE.value)
 
     def draw_peer_tetris_field(self, player_name: str, tetris_field: List[List[BlockType]]):
-        with self.lock:
-            field_sf = self.peers_fields_sf[player_name]
-            self.draw_field(tetris_field, field_sf, is_preview=True)
+        field_sf = self.peers_fields_sf[player_name]
+        self.draw_field(tetris_field, field_sf, is_preview=True)
 
     def update(self, delta_time: int):
         if not self.is_running:

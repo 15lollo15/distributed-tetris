@@ -9,6 +9,8 @@ from state.impl.multi_player_state import MultiPlayerState
 from tetris.tetris_field import BlockType
 
 
+# TODO: Write some decorators
+
 class TetrisPeer(Peer):
 
     def __init__(self, player_name: str, multiplayer_state: MultiPlayerState = None):
@@ -17,6 +19,16 @@ class TetrisPeer(Peer):
         self.seed = None
 
         self.is_running = False
+
+    def get_alive(self) -> List[Pyro4.Proxy]:
+        return [self.peers[player_name] for player_name, is_dead in self.multiplayer_state.is_dead.items() if
+                not is_dead]
+
+    def add_row_to_random_peer(self, num_rows: int):
+        with self.lock:
+            if num_rows > 0:
+                enemy_peer = Random().choice(self.get_alive())
+                enemy_peer.add_rows(num_rows)
 
     @check_active
     @Pyro4.expose
@@ -54,7 +66,6 @@ class TetrisPeer(Peer):
                     crashed.append(player_name)
         for player_name in crashed:
             self.peers.pop(player_name)
-
 
     @check_active
     def broadcast_setup_game(self):
