@@ -78,20 +78,13 @@ class LobbyState(GameState):
 
             self.ui_manager.process_events(event)
 
-    def update(self, delta_time: int):
-        if self.crashed or self.peer.is_running:
+    def refresh(self):
+        if not self.peer.in_lobby():
             return
         try:
-            if not self.peer.in_lobby():
-                return
-            self.ui_manager.update(delta_time)
-            self.time_elapsed += delta_time
-            if self.time_elapsed > 5000:
-                players_dict: Dict[str, str] = self.peer.list_lobby_players()
-                self.players_selection_list.set_item_list(list(players_dict.keys()))
-                self.time_elapsed = 0
+            players_dict: Dict[str, str] = self.peer.list_lobby_players()
+            self.players_selection_list.set_item_list(list(players_dict.keys()))
             self.lobby_name_label.set_text(self.peer.get_lobby_name())
-
             connected_players = self.peer.get_lobby_players_number()
             max_players = self.peer.get_lobby_max_players_number()
             players_text = f'({connected_players}/{max_players})'
@@ -99,11 +92,21 @@ class LobbyState(GameState):
         except Pyro4.errors.ConnectionClosedError:
             self.crashed = True
 
+    def update(self, delta_time: int):
+        if self.crashed or self.peer.is_running:
+            return
+        self.ui_manager.update(delta_time)
+        self.time_elapsed += delta_time
+        if self.time_elapsed > 5000: # TODO: add to settings
+            self.refresh()
+            self.time_elapsed = 0
+
     def on_change(self):
         if not self.peer.is_host():
             self.play_button.hide()
         else:
             self.play_button.show()
+        self.refresh()
 
     def render(self, screen: Surface):
         self.ui_manager.draw_ui(screen)

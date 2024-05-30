@@ -10,7 +10,6 @@ from state.game_state import GameState
 
 
 # TODO: Info messages
-# TODO: Refresh at start
 # TODO: Back button
 class BrowseLobbyState(GameState):
 
@@ -59,13 +58,22 @@ class BrowseLobbyState(GameState):
 
             self.ui_manager.process_events(event)
 
+    def refresh(self):
+        lobbies_dict: Dict[str, str] = self.peer.name_server.list(metadata_all=['lobby'])
+        self.lobby_selection_list.set_item_list(list(lobbies_dict.keys()))
+
     def update(self, delta_time: int):
         self.ui_manager.update(delta_time)
         self.time_elapsed += delta_time
         if self.time_elapsed > 5000:
-            lobbies_dict: Dict[str, str] = self.peer.name_server.list(metadata_all=['lobby'])
-            self.lobby_selection_list.set_item_list(list(lobbies_dict.keys()))
+            self.refresh()
             self.time_elapsed = 0
 
     def render(self, screen: Surface):
         self.ui_manager.draw_ui(screen)
+
+    def on_change(self):
+        super().on_change()
+        self.refresh()
+
+

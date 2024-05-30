@@ -2,10 +2,6 @@ import sys
 
 from game import Game
 
-
-# TODO: Close app
-# TODO: Reset after play
-# TODO: Disconnect during play (peer must die)
 # TODO: Exceptions
 
 def main(argv: list[str]):
