@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Dict
 
 import pygame as pg
@@ -14,7 +15,7 @@ class BrowseLobbyState(GameState):
 
     def __init__(self, peer: Peer):
         self.peer = peer
-        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, 'data/theme.json')
+        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, Path('data/theme.json'))
         self.lobby_selection_list: pygame_gui.elements.UISelectionList = None
         self.new_lobby_button: pygame_gui.elements.UIButton = None
         self.matchmaking_label: pygame_gui.elements.UILabel = None

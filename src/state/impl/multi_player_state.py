@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Dict, List
 
 import pygame as pg
@@ -32,7 +33,7 @@ class MultiPlayerState(SinglePlayerState):
         self.i_win = False
         self.peers_fields_sf = {}
         self.init_peers_fields_sf()
-        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, 'data/theme.json')
+        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, Path('data/theme.json'))
         self.init_player_tags()
 
     def init_player_tags(self):

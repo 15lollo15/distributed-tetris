@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Dict
 
 import Pyro4.errors
@@ -14,7 +15,7 @@ class LobbyState(GameState):
 
     def __init__(self, peer: TetrisPeer):
         self.peer = peer
-        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, 'data/theme.json')
+        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, Path('data/theme.json'))
         self.players_selection_list: pygame_gui.elements.UISelectionList = None
         self.lobby_name_label: pygame_gui.elements.UILabel = None
         self.num_players_label: pygame_gui.elements.UILabel = None

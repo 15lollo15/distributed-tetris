@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 
 import pygame as pg
@@ -15,7 +16,7 @@ class MenuState(GameState):
     def __init__(self, peer: TetrisPeer):
         super().__init__()
         self.peer = peer
-        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, 'data/theme.json')
+        self.ui_manager = pygame_gui.UIManager(settings.SCREEN_SIZE, Path(r'data\theme.json'))
         self.single_player_button = None
         self.multi_player_button = None
         self.quit_button = None
