@@ -27,7 +27,7 @@ class LobbyState(GameState):
         self.crashed = False
 
     def setup_ui(self):
-        lobby_name_label_rect = pg.Rect(0, 0, 100, 100)
+        lobby_name_label_rect = pg.Rect(0, 0, 500, 100)
         self.lobby_name_label = pygame_gui.elements.UILabel(lobby_name_label_rect, 'Match making',
                                                             manager=self.ui_manager,
                                                             anchors={'centerx': 'centerx'})

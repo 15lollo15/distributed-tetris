@@ -24,7 +24,7 @@ class BrowseLobbyState(GameState):
         self.setup_ui()
 
     def setup_ui(self):
-        matchmaking_label_rect = pg.Rect(0, 0, 100, 100)
+        matchmaking_label_rect = pg.Rect(0, 0, 200, 100)
         self.matchmaking_label = pygame_gui.elements.UILabel(matchmaking_label_rect, 'Match making',
                                                              manager=self.ui_manager,
                                                              anchors={'centerx': 'centerx'}

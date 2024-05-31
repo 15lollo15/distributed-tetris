@@ -1,4 +1,85 @@
 {
+  "button":
+  {
+    "colours":
+    {
+      "normal_text": "#ffffff",
+      "normal_bg": "#000000",
+      "normal_border": "#ffffff",
+      "hovered_text": "#000000",
+      "hovered_bg": "#ffffff",
+      "hovered_border": "#ffffff",
+      "selected_text": "#000000",
+      "selected_bg": "#ffffff",
+      "active_text": "#000000",
+      "active_bg": "#ffffff",
+      "active_border": "#ffffff"
+    },
+    "font":
+    {
+      "name": "Consolas",
+      "size": 20,
+      "bold": "1"
+    },
+    "misc":
+    {
+      "border_width": "3"
+    }
+  },
+  "text_entry_line":
+  {
+    "colours":
+    {
+      "dark_bg": "#000000",
+      "normal_text": "#ffffff",
+      "selected_bg": "#ffffff",
+      "selected_text": "#000000",
+      "normal_border": "#ffffff"
+    },
+    "font":
+    {
+      "name": "Consolas"
+    },
+    "misc":
+    {
+      "border_width": "3"
+    }
+  },
+  "label":
+  {
+    "colours":
+    {
+      "normal_text": "#ffffff"
+    },
+    "font":
+    {
+      "name": "Consolas",
+      "size": 20
+    }
+  },
+  "selection_list":
+  {
+    "colours":
+    {
+      "dark_bg": "#000000",
+      "normal_border": "#ffffff"
+    },
+    "misc":
+    {
+      "border_width": "3"
+    }
+  },
+  "message_window":
+  {
+    "colours":
+    {
+      "dark_bg": "#000000"
+    },
+    "misc":
+    {
+      "enable_title_bar": "0"
+    }
+  },
   "#game_title":
   {
     "colours":
@@ -8,7 +89,8 @@
     "font":
     {
       "name": "Consolas",
-      "size": 50
+      "size": 50,
+      "bold": "1"
     }
   }
 }
