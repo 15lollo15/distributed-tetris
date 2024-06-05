@@ -4,12 +4,11 @@ from game import Game
 
 
 def main(argv: list[str]):
-    if 'host' in argv:
-        game = Game('host')
-        game.run()
+    if len(argv) > 1:
+        game = Game(argv[1])
     else:
-        game = Game('client-2')
-        game.run()
+        game = Game('player')
+    game.run()
 
 
 if __name__ == '__main__':

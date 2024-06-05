@@ -1,0 +1,10 @@
+START /B python .\src\main.py  player-1
+START /B python .\src\main.py  player-2
+START /B python .\src\main.py  player-3
+START /B python .\src\main.py  player-4
+START /B python .\src\main.py  player-5
+START /B python .\src\main.py  player-6
+START /B python .\src\main.py  player-7
+START /B python .\src\main.py  player-8
+START /B python .\src\main.py  player-9
+START /B python .\src\main.py  player-10
